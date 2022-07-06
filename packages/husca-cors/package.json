@@ -1,0 +1,57 @@
+{
+  "name": "@husca/cors",
+  "version": "0.0.0",
+  "description": "跨域请求共享中间件",
+  "keywords": [
+    "cors"
+  ],
+  "contributors": [
+    "罪 <fanwenhua1990@gmail.com> (https://github.com/geekact)"
+  ],
+  "repository": "git@github.com:husca-js/husca.git",
+  "homepage": "https://husca.js.org",
+  "license": "MIT",
+  "type": "module",
+  "types": "dist/index.d.ts",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "package.json",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "test": "vitest",
+    "prepublishOnly": "tsup",
+    "build": "tsup"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": "^16.13 || ^18"
+  },
+  "peerDependencies": {
+    "@husca/husca": "^0.x"
+  },
+  "dependencies": {
+    "vary": "^1.1.2"
+  },
+  "devDependencies": {
+    "@husca/husca": "*",
+    "@types/node": "^18.0.3",
+    "@types/supertest": "^2.0.12",
+    "@types/vary": "^1.1.0",
+    "c8": "^7.11.3",
+    "supertest": "^6.2.4",
+    "typescript": "^4.7.4",
+    "vitest": "^0.17.0"
+  }
+}
