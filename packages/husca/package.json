@@ -34,6 +34,9 @@
     "prepublishOnly": "tsup",
     "build": "tsup"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "engines": {
     "node": "^16.13 || ^18"
   },
