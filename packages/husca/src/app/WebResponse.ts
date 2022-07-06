@@ -1,4 +1,4 @@
-import { IncomingMessage, ServerResponse } from 'node:http';
+import { ServerResponse } from 'node:http';
 import util from 'node:util';
 import { extname } from 'node:path';
 import stream, { Stream } from 'node:stream';
@@ -20,11 +20,6 @@ export class WebResponse extends ServerResponse {
   protected _body: Body = null;
   protected explicitStatus: boolean = false;
   protected explicitNullBody: boolean = false;
-
-  constructor(req: IncomingMessage) {
-    super(req);
-    this.overrideStatusCode();
-  }
 
   set body(val: Body) {
     const original = this._body;
@@ -135,31 +130,26 @@ export class WebResponse extends ServerResponse {
     return typeIs.is(this.contentType, type, ...types);
   }
 
-  protected overrideStatusCode() {
-    Object.defineProperty(this, 'statusCode', {
-      enumerable: false,
-      get: () => {
-        return super.statusCode;
-      },
-      set: (code: number) => {
-        assert(code >= 100 && code <= 999, `invalid status code: ${code}`);
+  get status() {
+    return this.statusCode;
+  }
 
-        super.statusCode = code;
-        this.explicitStatus = true;
+  set status(code: number) {
+    assert(code >= 100 && code <= 999, `invalid status code: ${code}`);
 
-        const message = statuses.message[code];
-        if (message && this.req.httpVersionMajor < 2) {
-          this.statusMessage = message;
-        }
+    this.explicitStatus = true;
 
-        if (statuses.empty[code]) {
-          this.removeHeader('Content-Type');
-          this.removeHeader('Content-Length');
-          this.removeHeader('Transfer-Encoding');
-          this._body = null;
-        }
-      },
-    });
+    const message = statuses.message[code];
+    if (message && this.req.httpVersionMajor < 2) {
+      this.statusMessage = message;
+    }
+
+    if (statuses.empty[code]) {
+      this.removeHeader('Content-Type');
+      this.removeHeader('Content-Length');
+      this.removeHeader('Transfer-Encoding');
+      this._body = null;
+    }
   }
 
   protected respondBody(): any {

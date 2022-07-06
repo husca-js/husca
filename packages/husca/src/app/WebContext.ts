@@ -50,12 +50,14 @@ export class WebContext {
   send(body: Body): this;
   send(statusOrBody: number | Body, body?: Body): this {
     if (typeof statusOrBody === 'number') {
-      this.response.statusCode = statusOrBody;
+      this.response.status = statusOrBody;
     } else {
       body = statusOrBody;
     }
 
-    this.response.body = body;
+    if (body !== undefined) {
+      this.response.body = body;
+    }
 
     return this;
   }
