@@ -1,0 +1,35 @@
+{
+  "name": "husca",
+  "repository": "git@github.com:husca-js/husca.git",
+  "contributors": [
+    "罪 <fanwenhua1990@gmail.com> (https://github.com/geekact)"
+  ],
+  "type": "module",
+  "license": "MIT",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "docs": "docsify serve ./docs",
+    "prepare": "husky install",
+    "build": "lerna run build --stream",
+    "test": "lerna run test --stream",
+    "deps": "yarn upgrade-interactive --latest"
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^17.0.3",
+    "@commitlint/config-conventional": "^17.0.3",
+    "husky": "^8.0.1",
+    "lerna": "^5.1.6",
+    "nx": "^14.4.1",
+    "prettier": "^2.7.1",
+    "tsup": "^6.1.3",
+    "typescript": "^4.7.4"
+  }
+}

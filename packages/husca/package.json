@@ -1,0 +1,93 @@
+{
+  "name": "@husca/husca",
+  "version": "0.0.0",
+  "description": "流畅的Node.js框架",
+  "keywords": [
+    "node framework",
+    "node.js framework",
+    "koa like"
+  ],
+  "contributors": [
+    "罪 <fanwenhua1990@gmail.com> (https://github.com/geekact)"
+  ],
+  "repository": "git@github.com:husca-js/husca.git",
+  "homepage": "https://husca.js.org",
+  "license": "MIT",
+  "type": "module",
+  "types": "dist/index.d.ts",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "package.json",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "test": "vitest",
+    "prepublishOnly": "tsup",
+    "build": "tsup"
+  },
+  "engines": {
+    "node": "^16.13 || ^18"
+  },
+  "peerDependencies": {
+    "@types/node": ">=16",
+    "typescript": "^4.7"
+  },
+  "dependencies": {
+    "@types/accepts": "^1.3.5",
+    "@types/content-disposition": "^0.5.5",
+    "@types/cookies": "^0.7.7",
+    "@types/formidable": "^2.0.5",
+    "@types/http-errors": "^1.8.2",
+    "accepts": "^1.3.8",
+    "chalk": "^5.0.1",
+    "co-body": "^6.1.0",
+    "content-disposition": "^0.5.4",
+    "content-type": "^1.0.4",
+    "cookies": "^0.8.0",
+    "dayjs": "^1.11.3",
+    "destroy": "^1.2.0",
+    "email-validator": "^2.0.4",
+    "formidable": "^3.2.4",
+    "fresh": "^0.5.2",
+    "glob": "^8.0.3",
+    "http-errors": "^2.0.0",
+    "ip-regex": "^5.0.0",
+    "mime-types": "^2.1.35",
+    "parseurl": "^1.3.3",
+    "path-to-regexp": "^6.2.1",
+    "qs": "^6.10.5",
+    "statuses": "^2.0.1",
+    "topic": "^3.0.2",
+    "type-is": "^1.6.18",
+    "yargs": "^17.5.1",
+    "ylru": "^1.3.2"
+  },
+  "devDependencies": {
+    "@types/co-body": "^6.1.0",
+    "@types/content-type": "^1.1.5",
+    "@types/destroy": "^1.0.0",
+    "@types/fresh": "^0.5.0",
+    "@types/glob": "^7.2.0",
+    "@types/mime-types": "^2.1.1",
+    "@types/node": "^18.0.1",
+    "@types/parseurl": "^1.3.1",
+    "@types/statuses": "^2.0.0",
+    "@types/supertest": "^2.0.12",
+    "@types/type-is": "^1.6.3",
+    "@types/yargs": "^17.0.10",
+    "c8": "^7.11.3",
+    "supertest": "^6.2.4",
+    "ts-expect": "^1.3.0",
+    "typescript": "^4.7.4",
+    "vitest": "^0.17.0"
+  }
+}

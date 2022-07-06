@@ -1,0 +1,37 @@
+{
+  "compilerOptions": {
+    // https://github.com/microsoft/TypeScript/wiki/Node-Target-Mapping
+    "target": "ES2021",
+    "module": "ES2022",
+    "lib": ["ES2021"],
+    "allowJs": false,
+    "declaration": true,
+    "outDir": "./build",
+    "rootDir": ".",
+    "importHelpers": false,
+
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitOverride": true,
+    "useUnknownInCatchVariables": true
+  }
+}
