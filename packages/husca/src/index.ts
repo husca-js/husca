@@ -5,6 +5,8 @@ export {
   ConsoleAppOptions,
   WebCtx,
   ConsoleCtx,
+  WebRequest,
+  WebResponse,
 } from './app';
 export {
   createSlot,
@@ -16,7 +18,10 @@ export {
   WebSlot,
   ConsoleSlot,
   MixedSlot,
+  WebSlotManager,
+  ConsoleSlotManager,
 } from './slot';
 export { Router, RouterOptions, Commander, CommanderOptions } from './router';
 export { Validator, rule, validate } from './validators';
-export { Next} from './utils/compose'
+export { Next } from './utils/compose';
+export { HttpError } from 'http-errors';
