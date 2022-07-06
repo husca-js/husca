@@ -1,7 +1,9 @@
 import path, { extname } from 'node:path';
 import glob from 'glob';
 
-const ext = /ts$/.test(extname(import.meta.url)) ? 'cts,mts,ts' : 'cjs,mjs,js';
+const ext = /ts$/.test(extname(process.argv[1] || ''))
+  ? 'cts,mts,ts'
+  : 'cjs,mjs,js';
 
 export namespace finder {
   export interface Options {
