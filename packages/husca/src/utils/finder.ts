@@ -1,9 +1,8 @@
-import path, { extname } from 'node:path';
+import path from 'node:path';
+import { existsSync, statSync } from 'node:fs';
 import glob from 'glob';
 
-const ext = /ts$/.test(extname(process.argv[1] || ''))
-  ? 'cts,mts,ts'
-  : 'cjs,mjs,js';
+const ext = 'ts,js,mts,mjs,cts,cjs';
 
 export namespace finder {
   export interface Options {
@@ -15,7 +14,7 @@ export namespace finder {
   export type Paths = string | string[] | finder.Options | finder.Options[];
 }
 
-const isString = (data: string[] | finder.Options[]): data is string[] => {
+const isStringArray = (data: string[] | finder.Options[]): data is string[] => {
   return typeof data[0] === 'string';
 };
 
@@ -36,9 +35,9 @@ export const finder = (paths: finder.Paths): Promise<string[]> => {
   return Promise.all(
     opts.map((opt) => {
       const options: glob.IOptions = opt;
-      const ignore = opt.ignore || [];
+      const ignore = opt.ignore ? opt.ignore.slice() : [];
 
-      ignore.push('**/*.d.ts');
+      ignore.push('**/*.d.{ts,mts,cts}');
       options.ignore = ignore;
       options.nodir = true;
 
@@ -46,8 +45,16 @@ export const finder = (paths: finder.Paths): Promise<string[]> => {
         opt.pattern.map(
           (pattern) =>
             new Promise<string[]>((resolve, reject) => {
+              pattern = path.resolve(pattern);
+
               if (!glob.hasMagic(pattern)) {
-                pattern = path.resolve(pattern, `./**/*.{${ext}}`);
+                if (!existsSync(pattern)) {
+                  return reject('no such file or directory: ' + pattern);
+                }
+
+                if (!statSync(pattern).isFile()) {
+                  pattern = path.resolve(pattern, `./**/*.{${ext}}`);
+                }
               }
 
               glob(pattern, options, (err, matches) => {
@@ -74,19 +81,15 @@ finder.normalize = (pattern: finder.Paths): finder.Options[] => {
   }
 
   if (Array.isArray(pattern)) {
-    if (!pattern.length) {
-      return [];
-    }
+    if (!pattern.length) return [];
 
-    if (isString(pattern)) {
-      return [
-        {
-          pattern: pattern,
-        },
-      ];
-    }
-
-    return pattern;
+    return isStringArray(pattern)
+      ? [
+          {
+            pattern: pattern,
+          },
+        ]
+      : pattern;
   }
 
   return [pattern];
