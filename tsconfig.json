@@ -2,7 +2,7 @@
   "compilerOptions": {
     // https://github.com/microsoft/TypeScript/wiki/Node-Target-Mapping
     "target": "ES2021",
-    "module": "ES2022",
+    "module": "Node16",
     "lib": ["ES2021"],
     "allowJs": false,
     "declaration": true,
