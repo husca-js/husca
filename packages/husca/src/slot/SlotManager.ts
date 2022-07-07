@@ -32,7 +32,7 @@ export abstract class SlotManager<Props extends object = object> {
 export class WebSlotManager<
   Props extends object = object,
 > extends SlotManager<Props> {
-  private declare _flag_: 'web-slot-manager';
+  protected declare _type_flag_: 'web-slot-manager';
 
   declare load: {
     <P extends object>(slot: WebSlotCompat<P> | null): WebSlotManager<
@@ -44,7 +44,7 @@ export class WebSlotManager<
 export class ConsoleSlotManager<
   Props extends object = object,
 > extends SlotManager<Props> {
-  private declare _flag_: 'console-slot-manager';
+  protected declare _type_flag_: 'console-slot-manager';
 
   declare load: {
     <P extends object>(slot: ConsoleSlotCompat<P> | null): ConsoleSlotManager<
@@ -56,7 +56,7 @@ export class ConsoleSlotManager<
 export class MixedSlotManager<
   Props extends object = object,
 > extends SlotManager<Props> {
-  private declare _flag_: 'mixed-slot-manager';
+  protected declare _type_flag_: 'mixed-slot-manager';
 
   declare load: {
     <P extends object>(slot: MixedSlotCompat<P> | null): MixedSlotManager<

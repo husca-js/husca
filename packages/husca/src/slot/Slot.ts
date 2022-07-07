@@ -8,7 +8,8 @@ import type {
 } from './types';
 
 export abstract class Slot<Props extends object = object> {
-  private declare _NOT_EXIST_: Props;
+  // 必须在 .d.ts 中强制使用Props，否则在使用阶段无法识别真实的Props类型
+  protected declare _type_for_props_: Props;
 
   protected static globalID = 0;
 
@@ -30,7 +31,7 @@ export abstract class Slot<Props extends object = object> {
 }
 
 export class WebSlot<Props extends object> extends Slot<Props> {
-  private declare _flag_: 'web-slot';
+  protected declare _type_flag_: 'web-slot';
 
   constructor(fn: WebSlotFn<NonReadonly<Props>>) {
     super(fn);
@@ -38,7 +39,7 @@ export class WebSlot<Props extends object> extends Slot<Props> {
 }
 
 export class ConsoleSlot<Props extends object> extends Slot<Props> {
-  private declare _flag_: 'console-slot';
+  protected declare _type_flag_: 'console-slot';
 
   constructor(fn: ConsoleSlotFn<NonReadonly<Props>>) {
     super(fn);
@@ -46,7 +47,7 @@ export class ConsoleSlot<Props extends object> extends Slot<Props> {
 }
 
 export class MixedSlot<Props extends object = object> extends Slot<Props> {
-  private declare _flag_: 'mixed-slot';
+  protected declare _type_flag_: 'mixed-slot';
 
   constructor(fn: MixedSlotFn<NonReadonly<Props>>) {
     super(fn);
