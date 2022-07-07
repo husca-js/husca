@@ -1,13 +1,19 @@
 {
-  "version": "0.0.0",
+  "version": "0.0.6",
   "npmClient": "yarn",
   "useWorkspaces": true,
   "command": {
     "publish": {
-      "ignoreChanges": ["ignored-file", "*.md", "**/test/**"],
+      "ignoreChanges": [
+        "ignored-file",
+        "*.md",
+        "**/test/**"
+      ],
       "message": "chore: bump version %s"
     }
   },
-  "packages": ["packages/*"],
+  "packages": [
+    "packages/*"
+  ],
   "registry": "https://registry.npmjs.org"
 }
