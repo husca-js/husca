@@ -1,4 +1,4 @@
-import { Document } from '../../generator/Document';
+import { Document } from '../../document';
 import {
   validate,
   Validator,

@@ -1,4 +1,4 @@
-import type { Document } from '../generator/Document';
+import type { Document } from '../document';
 import type { Next } from '../utils/compose';
 import type {
   ConsoleSlotFn,

@@ -1,5 +1,5 @@
 import parser from 'yargs-parser';
-import { Document } from '../../generator/Document';
+import { Document } from '../../document';
 import { validate, Validator, GetValidatorType } from '../../validators';
 import { ConsoleSlot } from '../Slot';
 
