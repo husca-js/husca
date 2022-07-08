@@ -130,8 +130,14 @@ export class WebResponse extends ServerResponse {
     return typeIs.is(this.contentType, type, ...types);
   }
 
+  /**
+   * @deprecated 请使用 response.status
+   * @see {status}
+   **/
+  declare statusCode: number;
+
   get status() {
-    return this.statusCode;
+    return super.statusCode;
   }
 
   set status(code: number) {
