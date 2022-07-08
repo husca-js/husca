@@ -32,11 +32,11 @@ describe('web router builder', () => {
 
     builder
       .load(createSlot('web', () => {}))
-      .action(action)
-      .load(createSlot('web', () => {}));
+      .load(createSlot('web', () => {}))
+      .action(action);
 
     const slots = Builder.getSlots(builder);
-    const actionSlot = slots[1]!;
+    const actionSlot = slots[2]!;
     expect(slots).toHaveLength(3);
     expect(actionSlot).toBeInstanceOf(WebSlot);
   });
@@ -157,6 +157,10 @@ describe('web router builder', () => {
       expect(builder['uris']).toMatchObject([c]);
     });
   });
+
+  test('action stop chain', () => {
+    expect(new RouterBuilder('', [], []).action(() => {})).toBeUndefined();
+  });
 });
 
 describe('console commander builder', () => {
@@ -182,11 +186,12 @@ describe('console commander builder', () => {
 
     builder
       .load(createSlot('console', () => {}))
-      .action(action)
-      .load(createSlot('console', () => {}));
+
+      .load(createSlot('console', () => {}))
+      .action(action);
 
     const slots = Builder.getSlots(builder);
-    const actionSlot = slots[1]!;
+    const actionSlot = slots[2]!;
     expect(slots).toHaveLength(3);
     expect(actionSlot).toBeInstanceOf(ConsoleSlot);
   });
@@ -213,5 +218,9 @@ describe('console commander builder', () => {
     builder.action((_ctx) => {});
     // @ts-expect-error
     builder.action((_ctx, _next) => {});
+  });
+
+  test('action stop chain', () => {
+    expect(new CommanderBuilder('', []).action(() => {})).toBeUndefined();
   });
 });

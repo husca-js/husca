@@ -28,10 +28,9 @@ export abstract class Builder<Props extends object = object> {
    * 2. next()可能会跳到另一个路由，但是因为加载路由顺序是随机的，所以这会导致重新启动后的行为不一致
    * 3. Router中增加了参数`throwIfMethodMismatch`，为了防止误判，匹配到路由之后就不能再匹配其它路由了
    */
-  action(fn: (ctx: any) => Promise<any> | any): this {
+  action(fn: (ctx: any) => Promise<any> | any): void {
     const slot = createSlot(this.getTarget(), (ctx, _next) => fn(ctx));
     this.slots.push(slot);
-    return this;
   }
 
   protected abstract getTarget(): typeof SlotTarget[number];
@@ -136,7 +135,7 @@ export class RouterBuilder<
     slot: WebSlotCompat<P> | null,
   ) => RouterBuilder<Props & P>;
 
-  declare action: (fn: (ctx: WebCtx<Props>) => any) => this;
+  declare action: (fn: (ctx: WebCtx<Props>) => any) => void;
 
   protected getTarget() {
     return SlotTarget[0];
@@ -164,7 +163,7 @@ export class CommanderBuilder<
     slot: ConsoleSlotCompat<P> | null,
   ) => CommanderBuilder<Props & P>;
 
-  declare action: (fn: (ctx: ConsoleCtx<Props>) => any) => this;
+  declare action: (fn: (ctx: ConsoleCtx<Props>) => any) => void;
 
   protected getTarget() {
     return SlotTarget[1];
