@@ -10,13 +10,14 @@ import contentDisposition from 'content-disposition';
 import { getContentType } from '../utils/getContentType';
 import type { WebApp } from './WebApp';
 import createHttpError, { HttpError } from 'http-errors';
+import { WebContext } from './WebContext';
 
 export type Body = string | object | Stream | Buffer | undefined | null;
 
 export class WebResponse extends ServerResponse {
-  public silent: boolean = false;
   public respond: boolean = true;
   public app!: WebApp;
+  public ctx!: WebContext;
   protected _body: Body = null;
   protected explicitStatus: boolean = false;
   protected explicitNullBody: boolean = false;
@@ -244,7 +245,7 @@ export class WebResponse extends ServerResponse {
     const shouldStop =
       !response.respond || response.headersSent || !response.writable;
 
-    response.app.emit('error', err, response);
+    response.app.emit('error', err, response.ctx);
 
     if (shouldStop) return;
 

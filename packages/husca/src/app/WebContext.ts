@@ -22,6 +22,7 @@ export class WebContext {
   ) {
     request.app = response.app = app;
     request.res = response;
+    request.ctx = response.ctx = this;
   }
 
   /**

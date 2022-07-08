@@ -9,9 +9,11 @@ import fresh from 'fresh';
 import qs from 'qs';
 import type { WebApp } from './WebApp';
 import type { WebResponse } from './WebResponse';
+import { WebContext } from './WebContext';
 
 export class WebRequest extends IncomingMessage {
   public app!: WebApp;
+  public ctx!: WebContext;
   public res!: WebResponse;
 
   declare readonly method: string;

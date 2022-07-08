@@ -11,6 +11,7 @@ import { WebResponse } from './WebResponse';
 import { Router, RouterParser } from '../router';
 import { WebSlotManager } from '../slot';
 import { composeToMiddleware } from '../utils/compose';
+import { WebCtx } from '../../dist';
 
 export interface WebAppOptions {
   readonly routers: string[];
@@ -57,6 +58,27 @@ export class WebApp extends App {
       )
       .listen(...args);
   };
+
+  public override on(
+    eventName: 'error',
+    listener: (err: HttpError, ctx: WebCtx) => void,
+  ): this;
+  public override on(
+    eventName: string | symbol,
+    listener: (...args: any[]) => void,
+  ): this;
+  public override on(
+    eventName: string | symbol,
+    listener: (...args: any[]) => void,
+  ): this {
+    return super.on(eventName, listener);
+  }
+
+  override emit(eventName: 'error', err: HttpError, ctx: WebCtx): boolean;
+  override emit(eventName: string | symbol, ...args: any[]): boolean;
+  override emit(eventName: string | symbol, ...args: any[]): boolean {
+    return super.emit(eventName, ...args);
+  }
 
   protected callback(): http.RequestListener {
     const fn = composeToMiddleware(this.middleware);
