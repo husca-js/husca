@@ -1,19 +1,19 @@
 import { expectType, TypeEqual } from 'ts-expect';
 import { assert, expect, test, vitest } from 'vitest';
-import { body, manageSlots, rule } from '../../../src';
+import { params, manageSlots, rule } from '../../../src';
 import { GetSlotType } from '../../../src/slot';
 import { composeToMiddleware } from '../../../src/utils/compose';
 import { ValidatorError } from '../../../src/validators';
 
-test('set body onto context', async () => {
+test('set params onto context', async () => {
   const middleware = composeToMiddleware([
-    body({
+    params({
       test: rule.string(),
     }),
   ]);
   const ctx = {
     request: {
-      body: {
+      params: {
         test: 'x',
         test1: 'y',
       },
@@ -21,9 +21,9 @@ test('set body onto context', async () => {
   };
 
   await middleware(ctx);
-  expect(ctx).haveOwnProperty('body');
+  expect(ctx).haveOwnProperty('params');
   // @ts-ignore
-  expect(ctx['body']).toStrictEqual({
+  expect(ctx['params']).toStrictEqual({
     test: 'x',
   });
 });
@@ -34,14 +34,14 @@ test('throw error when rule validation failed', async () => {
     throw error;
   });
   const middleware = composeToMiddleware([
-    body({
+    params({
       test: rule.string(),
     }),
   ]);
   const ctx = {
     throw: spy,
     request: {
-      body: {},
+      params: {},
     },
   };
 
@@ -54,7 +54,7 @@ test('throw error when request.body is invalid', async () => {
     throw error;
   });
   const middleware = composeToMiddleware([
-    body({
+    params({
       test: rule.string(),
     }),
   ]);
@@ -69,7 +69,7 @@ test('throw error when request.body is invalid', async () => {
 });
 
 test('type checking', () => {
-  const slot = body({
+  const slot = params({
     a: rule.number(),
     b: rule.string().optional(),
     c: rule.object({
@@ -80,7 +80,7 @@ test('type checking', () => {
   expectType<
     TypeEqual<
       {
-        readonly body: {
+        readonly params: {
           a: number;
           b: string | undefined;
           c: { d: boolean[] };
@@ -90,12 +90,12 @@ test('type checking', () => {
     >
   >(true);
 
-  body({});
+  params({});
   // @ts-expect-error
-  body();
-  manageSlots('web').load(body({}));
+  params();
+  manageSlots('web').load(params({}));
   // @ts-expect-error
-  manageSlots('console').load(body({}));
+  manageSlots('console').load(params({}));
   // @ts-expect-error
-  manageSlots('mixed').load(body({}));
+  manageSlots('mixed').load(params({}));
 });

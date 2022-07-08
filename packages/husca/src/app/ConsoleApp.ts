@@ -1,7 +1,6 @@
 import { EOL } from 'node:os';
 import util from 'node:util';
 import chalk from 'chalk';
-import { hideBin } from 'yargs/helpers';
 import { Commander, CommanderParser, BaseRouterParser } from '../router';
 import { ConsoleSlotManager } from '../slot';
 import { composeToMiddleware } from '../utils/compose';
@@ -21,7 +20,7 @@ export class ConsoleApp extends App {
 
   constructor(options: ConsoleAppOptions) {
     super({ globSlots: options.globalSlots, paths: options.commanders });
-    this.getArgv = options.argv || (() => hideBin(process.argv));
+    this.getArgv = options.argv || (() => process.argv.slice(2));
   }
 
   public async run(): Promise<boolean> {

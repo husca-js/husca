@@ -1,6 +1,6 @@
+import parser from 'yargs-parser';
 import { Document } from '../../generator/Document';
 import { validate, Validator, GetValidatorType } from '../../validators';
-import yargs from 'yargs';
 import { ConsoleSlot } from '../Slot';
 
 export class OptionsSlot<
@@ -12,21 +12,21 @@ export class OptionsSlot<
     protected readonly props: Props,
     protected readonly alias?: { [key: string]: string | string[] },
   ) {
-    super(async (ctx, next) => {
-      const input = yargs([]).help(false).version(false);
+    super((ctx, next) => {
+      let options = ctx.request.options;
 
-      if (alias) {
-        Object.entries(alias).forEach(([name, aliasList]) => {
-          input.options(name, {
-            alias: aliasList,
-          });
+      if (alias && Object.keys(alias).length) {
+        const { _, ...rawOptions } = parser(ctx.request.argv, {
+          alias,
         });
+        options = rawOptions;
       }
 
-      const { _, $0, ...rawOptions } = input.parseSync(ctx.request.argv);
-
-      ctx.options = await validate(rawOptions, props);
-      return next();
+      return validate(options, props)
+        .then((result) => {
+          ctx.options = result;
+        })
+        .then(next);
     });
   }
 

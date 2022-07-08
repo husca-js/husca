@@ -1,19 +1,19 @@
 import { expectType, TypeEqual } from 'ts-expect';
 import { assert, expect, test, vitest } from 'vitest';
-import { body, manageSlots, rule } from '../../../src';
+import { query, manageSlots, rule } from '../../../src';
 import { GetSlotType } from '../../../src/slot';
 import { composeToMiddleware } from '../../../src/utils/compose';
 import { ValidatorError } from '../../../src/validators';
 
-test('set body onto context', async () => {
+test('set query onto context', async () => {
   const middleware = composeToMiddleware([
-    body({
+    query({
       test: rule.string(),
     }),
   ]);
   const ctx = {
     request: {
-      body: {
+      query: {
         test: 'x',
         test1: 'y',
       },
@@ -21,9 +21,9 @@ test('set body onto context', async () => {
   };
 
   await middleware(ctx);
-  expect(ctx).haveOwnProperty('body');
+  expect(ctx).haveOwnProperty('query');
   // @ts-ignore
-  expect(ctx['body']).toStrictEqual({
+  expect(ctx['query']).toStrictEqual({
     test: 'x',
   });
 });
@@ -34,27 +34,27 @@ test('throw error when rule validation failed', async () => {
     throw error;
   });
   const middleware = composeToMiddleware([
-    body({
+    query({
       test: rule.string(),
     }),
   ]);
   const ctx = {
     throw: spy,
     request: {
-      body: {},
+      query: {},
     },
   };
 
   await expect(middleware(ctx)).to.rejects.toThrowError(ValidatorError);
 });
 
-test('throw error when request.body is invalid', async () => {
+test('throw error when request.query is invalid', async () => {
   const spy = vitest.fn().mockImplementation((code, error) => {
     assert(typeof code === 'number');
     throw error;
   });
   const middleware = composeToMiddleware([
-    body({
+    query({
       test: rule.string(),
     }),
   ]);
@@ -69,7 +69,7 @@ test('throw error when request.body is invalid', async () => {
 });
 
 test('type checking', () => {
-  const slot = body({
+  const slot = query({
     a: rule.number(),
     b: rule.string().optional(),
     c: rule.object({
@@ -80,7 +80,7 @@ test('type checking', () => {
   expectType<
     TypeEqual<
       {
-        readonly body: {
+        readonly query: {
           a: number;
           b: string | undefined;
           c: { d: boolean[] };
@@ -90,12 +90,12 @@ test('type checking', () => {
     >
   >(true);
 
-  body({});
+  query({});
   // @ts-expect-error
-  body();
-  manageSlots('web').load(body({}));
+  query();
+  manageSlots('web').load(query({}));
   // @ts-expect-error
-  manageSlots('console').load(body({}));
+  manageSlots('console').load(query({}));
   // @ts-expect-error
-  manageSlots('mixed').load(body({}));
+  manageSlots('mixed').load(query({}));
 });

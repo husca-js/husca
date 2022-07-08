@@ -1,19 +1,19 @@
 import { expectType, TypeEqual } from 'ts-expect';
 import { assert, expect, test, vitest } from 'vitest';
-import { body, manageSlots, rule } from '../../../src';
+import { options, manageSlots, rule } from '../../../src';
 import { GetSlotType } from '../../../src/slot';
 import { composeToMiddleware } from '../../../src/utils/compose';
 import { ValidatorError } from '../../../src/validators';
 
-test('set body onto context', async () => {
+test('set options onto context', async () => {
   const middleware = composeToMiddleware([
-    body({
+    options({
       test: rule.string(),
     }),
   ]);
   const ctx = {
     request: {
-      body: {
+      options: {
         test: 'x',
         test1: 'y',
       },
@@ -21,9 +21,9 @@ test('set body onto context', async () => {
   };
 
   await middleware(ctx);
-  expect(ctx).haveOwnProperty('body');
+  expect(ctx).haveOwnProperty('options');
   // @ts-ignore
-  expect(ctx['body']).toStrictEqual({
+  expect(ctx['options']).toStrictEqual({
     test: 'x',
   });
 });
@@ -34,42 +34,66 @@ test('throw error when rule validation failed', async () => {
     throw error;
   });
   const middleware = composeToMiddleware([
-    body({
+    options({
       test: rule.string(),
     }),
   ]);
   const ctx = {
     throw: spy,
     request: {
-      body: {},
+      options: {},
     },
   };
 
   await expect(middleware(ctx)).to.rejects.toThrowError(ValidatorError);
 });
 
-test('throw error when request.body is invalid', async () => {
+test('throw error when request.options is invalid', async () => {
   const spy = vitest.fn().mockImplementation((code, error) => {
     assert(typeof code === 'number');
     throw error;
   });
   const middleware = composeToMiddleware([
-    body({
+    options({
       test: rule.string(),
     }),
   ]);
   const ctx = {
     throw: spy,
     request: {
-      body: '',
+      body: null,
     },
   };
 
   await expect(middleware(ctx)).to.rejects.toThrowError(Error);
 });
 
+test('regenerate source when alias is provided', async () => {
+  const middleware = composeToMiddleware([
+    options(
+      {
+        test: rule.string(),
+      },
+      {
+        test: ['t'],
+      },
+    ),
+  ]);
+  const ctx = {
+    request: {
+      argv: '--t=x --test1=y',
+    },
+  };
+
+  await middleware(ctx);
+  // @ts-ignore
+  expect(ctx['options']).toStrictEqual({
+    test: 'x',
+  });
+});
+
 test('type checking', () => {
-  const slot = body({
+  const slot = options({
     a: rule.number(),
     b: rule.string().optional(),
     c: rule.object({
@@ -80,7 +104,7 @@ test('type checking', () => {
   expectType<
     TypeEqual<
       {
-        readonly body: {
+        readonly options: {
           a: number;
           b: string | undefined;
           c: { d: boolean[] };
@@ -90,12 +114,12 @@ test('type checking', () => {
     >
   >(true);
 
-  body({});
+  options({});
   // @ts-expect-error
-  body();
-  manageSlots('web').load(body({}));
+  options();
+  manageSlots('console').load(options({}));
   // @ts-expect-error
-  manageSlots('console').load(body({}));
+  manageSlots('web').load(options({}));
   // @ts-expect-error
-  manageSlots('mixed').load(body({}));
+  manageSlots('mixed').load(options({}));
 });

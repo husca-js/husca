@@ -1,4 +1,4 @@
-import yargs from 'yargs';
+import parser from 'yargs-parser';
 import { ConsoleApp } from './ConsoleApp';
 
 export class ConsoleRequest {
@@ -6,11 +6,7 @@ export class ConsoleRequest {
   public readonly command: string;
 
   constructor(public readonly app: ConsoleApp, public readonly argv: string[]) {
-    const {
-      $0,
-      _: commands,
-      ...options
-    } = yargs([]).help(false).version(false).parseSync(argv);
+    const { _: commands, ...options } = parser(argv);
 
     this.options = options;
     this.command = String(commands[0] || '');
