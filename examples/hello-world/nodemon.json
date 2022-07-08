@@ -1,0 +1,8 @@
+{
+  "delay": 200,
+  "verbose": true,
+  "ext": "ts",
+  "exec": "ts-node ./src/index.ts",
+  "watch": ["./src/**/*"],
+  "ignore": ["**/*.md"]
+}
