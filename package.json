@@ -15,7 +15,8 @@
     "prepare": "husky install",
     "build": "lerna run build --stream",
     "test": "lerna run test --stream",
-    "deps": "yarn upgrade-interactive --latest"
+    "deps": "yarn upgrade-interactive --latest",
+    "release": "lerna publish --concurrency=1"
   },
   "commitlint": {
     "extends": [
