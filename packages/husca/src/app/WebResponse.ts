@@ -12,7 +12,7 @@ import type { WebApp } from './WebApp';
 import createHttpError, { HttpError } from 'http-errors';
 import { WebContext } from './WebContext';
 
-export type Body = string | object | Stream | Buffer | undefined | null;
+export type Body = string | object | Stream | Buffer | null;
 
 export class WebResponse extends ServerResponse {
   public respond: boolean = true;
@@ -82,7 +82,7 @@ export class WebResponse extends ServerResponse {
     this.contentType = 'json';
   }
 
-  get body() {
+  get body(): Body {
     return this._body;
   }
 
@@ -138,12 +138,13 @@ export class WebResponse extends ServerResponse {
   declare statusCode: number;
 
   get status() {
-    return super.statusCode;
+    return this.statusCode;
   }
 
   set status(code: number) {
     assert(code >= 100 && code <= 999, `invalid status code: ${code}`);
 
+    this.statusCode = code;
     this.explicitStatus = true;
 
     const message = statuses.message[code];
