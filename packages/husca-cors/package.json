@@ -1,6 +1,6 @@
 {
   "name": "@husca/cors",
-  "version": "0.0.7",
+  "version": "0.0.9",
   "description": "跨域请求共享中间件",
   "keywords": [
     "cors"
@@ -45,7 +45,7 @@
     "vary": "^1.1.2"
   },
   "devDependencies": {
-    "@husca/husca": "^0.0.7",
+    "@husca/husca": "^0.0.9",
     "@types/node": "^18.0.3",
     "@types/supertest": "^2.0.12",
     "@types/vary": "^1.1.0",
