@@ -11,13 +11,12 @@ interface AppOptions {
 }
 
 export abstract class App extends EventEmitter {
-  public _preSlotID: string | false = false;
-
+  protected _preSlotID: string | false = false;
+  protected silent: boolean = false;
   protected readonly topic = new Topic<{
     ready: [];
   }>();
   protected readonly routerParser: BaseRouterParser;
-  protected silent: boolean = false;
   protected readonly middleware: Slot[] = [];
   protected readonly routerSlots: Slot[] = [];
 

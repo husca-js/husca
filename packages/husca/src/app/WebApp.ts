@@ -5,13 +5,12 @@ import qs from 'qs';
 import cookies from 'cookies';
 import { HttpError } from 'http-errors';
 import { App } from './App';
-import { WebContext } from './WebContext';
+import { WebContext, WebCtx } from './WebContext';
 import { WebRequest } from './WebRequest';
 import { WebResponse } from './WebResponse';
 import { Router, RouterParser } from '../router';
 import { WebSlotManager } from '../slot';
 import { composeToMiddleware } from '../utils/compose';
-import { WebCtx } from '../../dist';
 
 export interface WebAppOptions {
   readonly routers: string[];
@@ -19,6 +18,7 @@ export interface WebAppOptions {
   readonly globalSlots?: WebSlotManager;
   readonly querystring?: qs.IParseOptions;
   readonly cookies?: cookies.Option;
+  readonly silent?: boolean;
 }
 
 export class WebApp extends App {
@@ -29,6 +29,7 @@ export class WebApp extends App {
   constructor(options: WebAppOptions) {
     super({ globSlots: options.globalSlots, paths: options.routers });
 
+    this.silent = options.silent ?? this.silent;
     this.qsParseOptions = options.querystring;
     this.cookieOptions = options.cookies;
 
@@ -74,12 +75,6 @@ export class WebApp extends App {
     return super.on(eventName, listener);
   }
 
-  override emit(eventName: 'error', err: HttpError, ctx: WebCtx): boolean;
-  override emit(eventName: string | symbol, ...args: any[]): boolean;
-  override emit(eventName: string | symbol, ...args: any[]): boolean {
-    return super.emit(eventName, ...args);
-  }
-
   protected callback(): http.RequestListener {
     const fn = composeToMiddleware(this.middleware);
 
@@ -92,9 +87,12 @@ export class WebApp extends App {
       const response = _res as WebResponse;
       const ctx = new WebContext(this, request, response);
 
-      const handleResponse = () => WebResponse.respondOK(response);
-      const handleError = (err?: Error | null) =>
-        WebResponse.respondError(response, err);
+      const handleResponse = () => {
+        return WebResponse.respondOK(response);
+      };
+      const handleError = (err?: Error | null) => {
+        return WebResponse.respondError(response, err);
+      };
 
       response.statusCode = 404;
       stream.finished(response, handleError);
@@ -108,7 +106,7 @@ export class WebApp extends App {
       throw new TypeError(util.format('non-error thrown: %j', err));
     }
 
-    if ((this.silent || err.status || err.statusCode) === 404 || err.expose)
+    if (this.silent || (err.status || err.statusCode) === 404 || err.expose)
       return;
 
     const msg = err.stack || err.toString();
