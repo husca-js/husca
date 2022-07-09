@@ -91,6 +91,8 @@ export const cors = (options: CorsOptions = {}) => {
     options.maxAge = String(options.maxAge);
   }
 
+  options.keepHeadersOnError = options.keepHeadersOnError !== false;
+
   return createSlot('web', async (ctx, next) => {
     const { request, response } = ctx;
     // If the Origin header is not present terminate this set of steps.
@@ -204,7 +206,7 @@ export const cors = (options: CorsOptions = {}) => {
         setAndRecordHeader('Cross-Origin-Embedder-Policy', 'require-corp');
       }
 
-      let allowHeaders =
+      const allowHeaders =
         options.allowHeaders ||
         request.headers['access-control-request-headers'];
 
