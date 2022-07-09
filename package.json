@@ -15,6 +15,7 @@
     "prepare": "husky install",
     "build": "lerna run build --stream",
     "test": "lerna run test --stream",
+    "refresh": "lerna run build --stream --scope=@husca/husca && lerna link",
     "deps": "yarn upgrade-interactive --latest",
     "release": "lerna publish --concurrency=1"
   },
