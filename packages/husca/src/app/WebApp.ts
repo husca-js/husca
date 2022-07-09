@@ -1,6 +1,8 @@
 import util from 'node:util';
 import http from 'node:http';
 import stream from 'node:stream';
+import { EOL } from 'node:os';
+import chalk from 'chalk';
 import qs from 'qs';
 import cookies from 'cookies';
 import { HttpError } from 'http-errors';
@@ -61,8 +63,12 @@ export class WebApp extends App {
   };
 
   public override on(
-    eventName: 'error',
+    eventName: 'error-log',
     listener: (err: HttpError, ctx: WebCtx) => void,
+  ): this;
+  public override on(
+    eventName: 'error-end',
+    listener: (msg: string, ctx: WebCtx) => void,
   ): this;
   public override on(
     eventName: string | symbol,
@@ -78,8 +84,8 @@ export class WebApp extends App {
   protected callback(): http.RequestListener {
     const fn = composeToMiddleware(this.middleware);
 
-    if (!this.listenerCount('error')) {
-      this.on('error', this.log);
+    if (!this.listenerCount('error-log')) {
+      this.on('error-log', this.log);
     }
 
     return (_req, _res) => {
@@ -109,8 +115,11 @@ export class WebApp extends App {
     if (this.silent || (err.status || err.statusCode) === 404 || err.expose)
       return;
 
-    const msg = err.stack || err.toString();
-    console.error(`\n${msg.replace(/^/gm, '  ')}\n`);
+    const msgs = (err.stack || err.toString()).split(EOL, 2);
+
+    console.error(
+      ['', chalk.bgRed(msgs.shift()), msgs.join(EOL), ''].join(EOL),
+    );
   }
 
   protected createRouterParser(): RouterParser {

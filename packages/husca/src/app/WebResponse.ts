@@ -94,7 +94,7 @@ export class WebResponse extends ServerResponse {
 
   set contentType(typeOrFilenameOrExt: string) {
     const mimeType = getContentType(typeOrFilenameOrExt);
-    if (mimeType) {
+    if (mimeType !== false) {
       this.setHeader('Content-Type', mimeType);
     } else {
       this.removeHeader('Content-Type');
@@ -246,7 +246,7 @@ export class WebResponse extends ServerResponse {
     const shouldStop =
       !response.respond || response.headersSent || !response.writable;
 
-    response.app.emit('error', err, response.ctx);
+    response.app.emit('error-log', err, response.ctx);
 
     if (shouldStop) return;
 
@@ -257,8 +257,6 @@ export class WebResponse extends ServerResponse {
         response.setHeader(key, value);
       });
     }
-
-    response.contentType = 'text';
 
     let statusCode = err.status || err.statusCode;
 
@@ -273,7 +271,15 @@ export class WebResponse extends ServerResponse {
 
     const msg = err.expose ? err.message : statuses.message[statusCode]!;
     response.statusCode = err.status = statusCode;
-    response.contentLength = Buffer.byteLength(msg);
-    response.end(msg);
+    response.app.emit('error-end', msg, response.ctx);
+
+    if (!response.headersSent && response.writable) {
+      const body = JSON.stringify({
+        message: msg,
+      });
+      response.contentType = 'json';
+      response.contentLength = Buffer.byteLength(body);
+      response.end(body);
+    }
   }
 }
