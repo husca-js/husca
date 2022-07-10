@@ -42,3 +42,23 @@ export interface ConsoleSlotFn<Props extends object> {
 export interface MixedSlotFn<Props extends object> {
   (ctx: WebCtx<Props> | ConsoleCtx<Props>, next: Next): any;
 }
+
+export interface UnlessOptions {
+  custom?: (ctx: any) => boolean;
+}
+
+export interface WebUnlessOptions extends UnlessOptions {
+  custom?: (ctx: WebCtx) => boolean;
+  useOriginalUrl?: boolean;
+  path?: string | RegExp | (string | RegExp)[];
+  ext?: string | string[];
+  method?: string | string[];
+}
+
+export interface ConsoleUnlessOptions extends UnlessOptions {
+  custom: (ctx: ConsoleCtx) => boolean;
+}
+
+export interface MixedUnlessOptions extends UnlessOptions {
+  custom: (ctx: WebCtx | ConsoleCtx) => boolean;
+}
