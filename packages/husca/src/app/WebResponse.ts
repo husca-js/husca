@@ -4,6 +4,7 @@ import { extname } from 'node:path';
 import stream, { Stream } from 'node:stream';
 import assert from 'node:assert';
 import typeIs from 'type-is';
+import vary from 'vary';
 import destroy from 'destroy';
 import statuses from 'statuses';
 import contentDisposition from 'content-disposition';
@@ -21,6 +22,10 @@ export class WebResponse extends ServerResponse {
   protected _body: Body = null;
   protected explicitStatus: boolean = false;
   protected explicitNullBody: boolean = false;
+
+  vary(field: string) {
+    vary(this, field);
+  }
 
   set body(val: Body) {
     const original = this._body;
