@@ -11,7 +11,7 @@ import request from 'supertest';
 import { expectType, TypeEqual } from 'ts-expect';
 import { describe, expect, test } from 'vitest';
 import { jwt, JWTOptions } from '../src';
-import { sign, Jwt, JwtPayload } from 'jsonwebtoken';
+import { sign } from 'jsonwebtoken';
 
 const createApp = (
   options: JWTOptions,
@@ -563,38 +563,32 @@ test('type checking', () => {
     expectType<
       TypeEqual<
         GetSlotType<typeof slot>,
-        { readonly jwt: { user: string | JwtPayload; token: string } }
+        { readonly jwt: { user: object; token: string } }
       >
     >(true);
   }
 
   {
-    const slot = jwt({ secret: '', complete: false });
+    const slot = jwt<{ hello: 'x' }>({ secret: '' });
     expectType<
       TypeEqual<
         GetSlotType<typeof slot>,
-        { readonly jwt: { user: string | JwtPayload; token: string } }
+        { readonly jwt: { user: { hello: 'x' }; token: string } }
       >
     >(true);
   }
 
   {
-    const slot = jwt({ secret: '', complete: undefined });
+    const slot = jwt<string>({ secret: '' });
     expectType<
       TypeEqual<
         GetSlotType<typeof slot>,
-        { readonly jwt: { user: string | JwtPayload; token: string } }
+        { readonly jwt: { user: string; token: string } }
       >
     >(true);
   }
 
-  {
-    const slot = jwt({ secret: '', complete: true });
-    expectType<
-      TypeEqual<
-        GetSlotType<typeof slot>,
-        { readonly jwt: { user: Jwt; token: string } }
-      >
-    >(true);
-  }
+  jwt<JWTOptions['algorithms']>({ secret: '' });
+  // @ts-expect-error
+  jwt<JWTOptions['complete']>({ secret: '' });
 });

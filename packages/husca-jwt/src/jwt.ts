@@ -9,8 +9,7 @@ import {
 import { getSecret } from './getSecret';
 import { resolveAuthorizationHeader, resolveCookies } from './resolvers';
 
-export interface JWTOptions<T extends boolean | undefined = undefined>
-  extends VerifyOptions {
+export interface JWTOptions extends Omit<VerifyOptions, 'complete'> {
   secret: JWTSecret | JWTSecretLoader;
   getToken?: JWTResolverLoader;
   isRevoked?(
@@ -20,12 +19,11 @@ export interface JWTOptions<T extends boolean | undefined = undefined>
   ): Promise<boolean>;
   cookie?: string;
   debug?: boolean;
-  complete?: T;
 }
 
 export type JWTResolverLoader = (
   ctx: WebCtx,
-  opts: JWTOptions<any>,
+  opts: JWTOptions,
 ) => string | null | undefined;
 export type JWTSecret = string | string[] | Buffer | Buffer[];
 export type JWTSecretLoader = (
@@ -33,14 +31,15 @@ export type JWTSecretLoader = (
   payload: string | JwtPayload,
 ) => Promise<JWTSecret>;
 
-export const jwt = <T extends boolean | undefined = undefined>(
-  options: JWTOptions<T>,
+export const jwt = <UserType = object>(
+  options: JWTOptions,
 ): WebSlot<{
   readonly jwt: {
-    user: T extends true ? Jwt : string | JwtPayload;
+    user: UserType;
     token: string;
   };
 }> => {
+  // TODO: debug属性应该给在主库设置
   const { debug, getToken, isRevoked } = options;
   const tokenResolvers = [resolveCookies, resolveAuthorizationHeader];
 
@@ -48,14 +47,16 @@ export const jwt = <T extends boolean | undefined = undefined>(
 
   return createSlot('web', async (ctx, next) => {
     let token: string | null | undefined;
-    tokenResolvers.find((resolver) => (token = resolver(ctx, options)));
+    for (const resolver of tokenResolvers) {
+      if ((token = resolver(ctx, options))) break;
+    }
 
     if (!token) {
       ctx.throw(401, debug ? 'Token not found' : 'Authentication Error');
       return;
     }
 
-    let secret = options.secret;
+    let { secret } = options;
 
     try {
       if (typeof secret === 'function') {
@@ -65,7 +66,6 @@ export const jwt = <T extends boolean | undefined = undefined>(
       let secrets = toArray(secret);
       if (!secret || !secrets.length) {
         ctx.throw(500, 'Secret not provided');
-        return;
       }
 
       let decodedToken: string | Jwt | JwtPayload | undefined;
@@ -91,7 +91,6 @@ export const jwt = <T extends boolean | undefined = undefined>(
         const tokenRevoked = await isRevoked(ctx, decodedToken!, token);
         if (tokenRevoked) {
           ctx.throw(400, 'Token revoked');
-          return;
         }
       }
 
@@ -107,7 +106,6 @@ export const jwt = <T extends boolean | undefined = undefined>(
           : String(e)
         : 'Authentication Error';
       ctx.throw(401, msg, { originalError: e });
-      return;
     }
 
     return next();
