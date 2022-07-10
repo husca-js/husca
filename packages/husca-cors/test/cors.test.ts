@@ -5,7 +5,7 @@ import {
   WebCtx,
   WebSlotManager,
 } from '@husca/husca';
-import { assert, describe, test } from 'vitest';
+import { assert, describe, expect, test } from 'vitest';
 import request from 'supertest';
 import { cors, CorsOptions } from '../src';
 
@@ -15,6 +15,7 @@ const createApp = (
   prevSlotManager?: WebSlotManager,
 ) => {
   return new WebApp({
+    silent: true,
     routers: [],
     globalSlots: manageSlots('web')
       .load(prevSlotManager || null)
@@ -31,50 +32,49 @@ const createApp = (
 describe('default options', function () {
   const app = createApp();
 
-  test('should not set `Access-Control-Allow-Origin` when request Origin header missing', (done) => {
-    request(app.listen())
+  test('should not set `Access-Control-Allow-Origin` when request Origin header missing', async () => {
+    await request(app.listen())
       .get('/')
       .expect({ foo: 'bar' })
-      .expect(200, function (err, res) {
-        assert(!err);
+      .expect(200)
+      .expect((res) => {
         assert(!res.headers['access-control-allow-origin']);
-        done();
       });
   });
 
-  test('should set `Access-Control-Allow-Origin` to request origin header', function (done) {
-    request(app.listen())
+  test('should set `Access-Control-Allow-Origin` to request origin header', async () => {
+    await request(app.listen())
       .get('/')
-      .set('Origin', 'http://koajs.com')
-      .expect('Access-Control-Allow-Origin', 'http://koajs.com')
+      .set('Origin', 'https://husca.js.org')
+      .expect('Access-Control-Allow-Origin', 'https://husca.js.org')
       .expect({ foo: 'bar' })
-      .expect(200, done);
+      .expect(200);
   });
 
-  test('should 204 on Preflight Request', function (done) {
-    request(app.listen())
+  test('should 204 on Preflight Request', async () => {
+    await request(app.listen())
       .options('/')
-      .set('Origin', 'http://koajs.com')
+      .set('Origin', 'https://husca.js.org')
       .set('Access-Control-Request-Method', 'PUT')
-      .expect('Access-Control-Allow-Origin', 'http://koajs.com')
+      .expect('Access-Control-Allow-Origin', 'https://husca.js.org')
       .expect('Access-Control-Allow-Methods', 'GET,HEAD,PUT,POST,DELETE,PATCH')
-      .expect(204, done);
+      .expect(204);
   });
 
-  test('should not Preflight Request if request missing Access-Control-Request-Method', function (done) {
-    request(app.listen())
+  test('should not Preflight Request if request missing Access-Control-Request-Method', async () => {
+    await request(app.listen())
       .options('/')
-      .set('Origin', 'http://koajs.com')
-      .expect(200, done);
+      .set('Origin', 'https://husca.js.org')
+      .expect(200);
   });
 
-  test('should always set `Vary` to Origin', function (done) {
-    request(app.listen())
+  test('should always set `Vary` to Origin', async () => {
+    await request(app.listen())
       .get('/')
-      .set('Origin', 'http://koajs.com')
+      .set('Origin', 'https://husca.js.org')
       .expect('Vary', 'Origin')
       .expect({ foo: 'bar' })
-      .expect(200, done);
+      .expect(200);
   });
 });
 
@@ -83,13 +83,13 @@ describe('options.origin=*', function () {
     origin: '*',
   });
 
-  test('should always set `Access-Control-Allow-Origin` to *', function (done) {
-    request(app.listen())
+  test('should always set `Access-Control-Allow-Origin` to *', async () => {
+    await request(app.listen())
       .get('/')
-      .set('Origin', 'http://koajs.com')
+      .set('Origin', 'https://husca.js.org')
       .expect('Access-Control-Allow-Origin', '*')
       .expect({ foo: 'bar' })
-      .expect(200, done);
+      .expect(200);
   });
 });
 
@@ -109,24 +109,24 @@ describe('options.secureContext=true', function () {
       ),
   });
 
-  test('should always set `Cross-Origin-Opener-Policy` & `Cross-Origin-Embedder-Policy` on not OPTIONS', function (done) {
-    request(app.listen())
+  test('should always set `Cross-Origin-Opener-Policy` & `Cross-Origin-Embedder-Policy` on not OPTIONS', async () => {
+    await request(app.listen())
       .get('/')
-      .set('Origin', 'http://koajs.com')
+      .set('Origin', 'https://husca.js.org')
       .expect('Cross-Origin-Opener-Policy', 'same-origin')
       .expect('Cross-Origin-Embedder-Policy', 'require-corp')
       .expect({ foo: 'bar' })
-      .expect(200, done);
+      .expect(200);
   });
 
-  test('should always set `Cross-Origin-Opener-Policy` & `Cross-Origin-Embedder-Policy` on OPTIONS', function (done) {
-    request(app.listen())
+  test('should always set `Cross-Origin-Opener-Policy` & `Cross-Origin-Embedder-Policy` on OPTIONS', async () => {
+    await request(app.listen())
       .options('/')
-      .set('Origin', 'http://koajs.com')
+      .set('Origin', 'https://husca.js.org')
       .set('Access-Control-Request-Method', 'PUT')
       .expect('Cross-Origin-Opener-Policy', 'same-origin')
       .expect('Cross-Origin-Embedder-Policy', 'require-corp')
-      .expect(204, done);
+      .expect(204);
   });
 });
 
@@ -135,16 +135,16 @@ describe('options.secureContext=false', function () {
     secureContext: false,
   });
 
-  test('should not set `Cross-Origin-Opener-Policy` & `Cross-Origin-Embedder-Policy`', function (done) {
-    request(app.listen())
+  test('should not set `Cross-Origin-Opener-Policy` & `Cross-Origin-Embedder-Policy`', async () => {
+    await request(app.listen())
       .get('/')
-      .set('Origin', 'http://koajs.com')
+      .set('Origin', 'https://husca.js.org')
       .expect((res) => {
         assert(!('Cross-Origin-Opener-Policy' in res.headers));
         assert(!('Cross-Origin-Embedder-Policy' in res.headers));
       })
       .expect({ foo: 'bar' })
-      .expect(200, done);
+      .expect(200);
   });
 });
 
@@ -153,25 +153,24 @@ describe('options.origin=function', function () {
     origin: (ctx) => (ctx.request.url === '/forbin' ? '' : '*'),
   });
 
-  test('should disable cors', function (done) {
-    request(app.listen())
+  test('should disable cors', async () => {
+    await request(app.listen())
       .get('/forbin')
-      .set('Origin', 'http://koajs.com')
+      .set('Origin', 'https://husca.js.org')
       .expect({ foo: 'bar' })
-      .expect(200, function (err, res) {
-        assert(!err);
+      .expect(200)
+      .expect((res) => {
         assert(!res.headers['access-control-allow-origin']);
-        done();
       });
   });
 
-  test('should set access-control-allow-origin to *', function (done) {
-    request(app.listen())
+  test('should set access-control-allow-origin to *', async () => {
+    await request(app.listen())
       .get('/')
-      .set('Origin', 'http://koajs.com')
+      .set('Origin', 'https://husca.js.org')
       .expect({ foo: 'bar' })
       .expect('Access-Control-Allow-Origin', '*')
-      .expect(200, done);
+      .expect(200);
   });
 });
 
@@ -180,96 +179,94 @@ describe('options.origin=async function', function () {
     origin: async (ctx) => (ctx.request.url === '/forbin' ? '' : '*'),
   });
 
-  test('should disable cors', function (done) {
-    request(app.listen())
+  test('should disable cors', async () => {
+    await request(app.listen())
       .get('/forbin')
-      .set('Origin', 'http://koajs.com')
+      .set('Origin', 'https://husca.js.org')
       .expect({ foo: 'bar' })
-      .expect(200, function (err, res) {
-        assert(!err);
+      .expect(200)
+      .expect((res) => {
         assert(!res.headers['access-control-allow-origin']);
-        done();
       });
   });
 
-  test('should set access-control-allow-origin to *', function (done) {
-    request(app.listen())
+  test('should set access-control-allow-origin to *', async () => {
+    await request(app.listen())
       .get('/')
-      .set('Origin', 'http://koajs.com')
+      .set('Origin', 'https://husca.js.org')
       .expect({ foo: 'bar' })
       .expect('Access-Control-Allow-Origin', '*')
-      .expect(200, done);
+      .expect(200);
   });
 });
 
 describe('options.exposeHeaders', function () {
-  test('should Access-Control-Expose-Headers: `content-length`', function (done) {
+  test('should Access-Control-Expose-Headers: `content-length`', async () => {
     const app = createApp({
       exposeHeaders: 'content-length',
     });
 
-    request(app.listen())
+    await request(app.listen())
       .get('/')
-      .set('Origin', 'http://koajs.com')
+      .set('Origin', 'https://husca.js.org')
       .expect('Access-Control-Expose-Headers', 'content-length')
       .expect({ foo: 'bar' })
-      .expect(200, done);
+      .expect(200);
   });
 
-  test('should work with array', function (done) {
+  test('should work with array', async () => {
     const app = createApp({
       exposeHeaders: ['content-length', 'x-header'],
     });
 
-    request(app.listen())
+    await request(app.listen())
       .get('/')
-      .set('Origin', 'http://koajs.com')
+      .set('Origin', 'https://husca.js.org')
       .expect('Access-Control-Expose-Headers', 'content-length,x-header')
       .expect({ foo: 'bar' })
-      .expect(200, done);
+      .expect(200);
   });
 });
 
 describe('options.maxAge', function () {
-  test('should set maxAge with number', function (done) {
+  test('should set maxAge with number', async () => {
     const app = createApp({
       maxAge: 3600,
     });
 
-    request(app.listen())
+    await request(app.listen())
       .options('/')
-      .set('Origin', 'http://koajs.com')
+      .set('Origin', 'https://husca.js.org')
       .set('Access-Control-Request-Method', 'PUT')
       .expect('Access-Control-Max-Age', '3600')
-      .expect(204, done);
+      .expect(204);
   });
 
-  test('should set maxAge with string', function (done) {
+  test('should set maxAge with string', async () => {
     const app = createApp({
       maxAge: '3600',
     });
 
-    request(app.listen())
+    await request(app.listen())
       .options('/')
-      .set('Origin', 'http://koajs.com')
+      .set('Origin', 'https://husca.js.org')
       .set('Access-Control-Request-Method', 'PUT')
       .expect('Access-Control-Max-Age', '3600')
-      .expect(204, done);
+      .expect(204);
   });
 
-  test('should not set maxAge on simple request', function (done) {
+  test('should not set maxAge on simple request', async () => {
     const app = createApp({
       maxAge: '3600',
     });
 
-    request(app.listen())
+    await request(app.listen())
       .get('/')
-      .set('Origin', 'http://koajs.com')
+      .set('Origin', 'https://husca.js.org')
       .expect({ foo: 'bar' })
-      .expect(200, function (err, res) {
-        assert(!err);
+      .expect(200)
+      .expect((res) => {
         assert(!res.headers['access-control-max-age']);
-        done();
       });
   });
 });
@@ -279,63 +276,51 @@ describe('options.credentials', function () {
     credentials: true,
   });
 
-  test('should enable Access-Control-Allow-Credentials on Simple request', function (done) {
-    request(app.listen())
+  test('should enable Access-Control-Allow-Credentials on Simple request', async () => {
+    await request(app.listen())
       .get('/')
-      .set('Origin', 'http://koajs.com')
+      .set('Origin', 'https://husca.js.org')
       .expect('Access-Control-Allow-Credentials', 'true')
       .expect({ foo: 'bar' })
-      .expect(200, done);
+      .expect(200);
   });
 
-  test('should enable Access-Control-Allow-Credentials on Preflight request', function (done) {
-    request(app.listen())
+  test('should enable Access-Control-Allow-Credentials on Preflight request', async () => {
+    await request(app.listen())
       .options('/')
-      .set('Origin', 'http://koajs.com')
+      .set('Origin', 'https://husca.js.org')
       .set('Access-Control-Request-Method', 'DELETE')
       .expect('Access-Control-Allow-Credentials', 'true')
-      .expect(204, done);
+      .expect(204);
   });
 });
 
 describe('options.credentials unset', function () {
   const app = createApp();
 
-  test('should disable Access-Control-Allow-Credentials on Simple request', function (done) {
-    request(app.listen())
+  test('should disable Access-Control-Allow-Credentials on Simple request', async () => {
+    await request(app.listen())
       .get('/')
-      .set('Origin', 'http://koajs.com')
+      .set('Origin', 'https://husca.js.org')
       .expect({ foo: 'bar' })
       .expect(200)
-      .end(function (error, response) {
-        if (error) return done(error);
-
-        const header = response.headers['access-control-allow-credentials'];
-        assert.equal(
-          header,
-          undefined,
-          'Access-Control-Allow-Credentials must not be set.',
-        );
-        done();
+      .expect((response) => {
+        expect(
+          response.headers['access-control-allow-credentials'],
+        ).toBeUndefined();
       });
   });
 
-  test('should disable Access-Control-Allow-Credentials on Preflight request', function (done) {
-    request(app.listen())
+  test('should disable Access-Control-Allow-Credentials on Preflight request', async () => {
+    await request(app.listen())
       .options('/')
-      .set('Origin', 'http://koajs.com')
+      .set('Origin', 'https://husca.js.org')
       .set('Access-Control-Request-Method', 'DELETE')
       .expect(204)
-      .end(function (error, response) {
-        if (error) return done(error);
-
-        const header = response.headers['access-control-allow-credentials'];
-        assert.equal(
-          header,
-          undefined,
-          'Access-Control-Allow-Credentials must not be set.',
-        );
-        done();
+      .expect((response) => {
+        expect(
+          response.headers['access-control-allow-credentials'],
+        ).toBeUndefined();
       });
   });
 });
@@ -347,59 +332,47 @@ describe('options.credentials=function', function () {
     },
   });
 
-  test('should enable Access-Control-Allow-Credentials on Simple request', function (done) {
-    request(app.listen())
+  test('should enable Access-Control-Allow-Credentials on Simple request', async () => {
+    await request(app.listen())
       .get('/')
-      .set('Origin', 'http://koajs.com')
+      .set('Origin', 'https://husca.js.org')
       .expect('Access-Control-Allow-Credentials', 'true')
       .expect({ foo: 'bar' })
-      .expect(200, done);
+      .expect(200);
   });
 
-  test('should enable Access-Control-Allow-Credentials on Preflight request', function (done) {
-    request(app.listen())
+  test('should enable Access-Control-Allow-Credentials on Preflight request', async () => {
+    await request(app.listen())
       .options('/')
-      .set('Origin', 'http://koajs.com')
+      .set('Origin', 'https://husca.js.org')
       .set('Access-Control-Request-Method', 'DELETE')
       .expect('Access-Control-Allow-Credentials', 'true')
-      .expect(204, done);
+      .expect(204);
   });
 
-  test('should disable Access-Control-Allow-Credentials on Simple request', function (done) {
-    request(app.listen())
+  test('should disable Access-Control-Allow-Credentials on Simple request', async () => {
+    await request(app.listen())
       .get('/forbin')
-      .set('Origin', 'http://koajs.com')
+      .set('Origin', 'https://husca.js.org')
       .expect({ foo: 'bar' })
       .expect(200)
-      .end(function (error, response) {
-        if (error) return done(error);
-
-        const header = response.headers['access-control-allow-credentials'];
-        assert.equal(
-          header,
-          undefined,
-          'Access-Control-Allow-Credentials must not be set.',
-        );
-        done();
+      .expect((response) => {
+        expect(
+          response.headers['access-control-allow-credentials'],
+        ).toBeUndefined();
       });
   });
 
-  test('should disable Access-Control-Allow-Credentials on Preflight request', function (done) {
-    request(app.listen())
+  test('should disable Access-Control-Allow-Credentials on Preflight request', async () => {
+    await request(app.listen())
       .options('/forbin')
-      .set('Origin', 'http://koajs.com')
+      .set('Origin', 'https://husca.js.org')
       .set('Access-Control-Request-Method', 'DELETE')
       .expect(204)
-      .end(function (error, response) {
-        if (error) return done(error);
-
-        const header = response.headers['access-control-allow-credentials'];
-        assert.equal(
-          header,
-          undefined,
-          'Access-Control-Allow-Credentials must not be set.',
-        );
-        done();
+      .expect((response) => {
+        expect(
+          response.headers['access-control-allow-credentials'],
+        ).toBeUndefined();
       });
   });
 });
@@ -409,156 +382,150 @@ describe('options.credentials=async function', function () {
     credentials: async () => true,
   });
 
-  test('should enable Access-Control-Allow-Credentials on Simple request', function (done) {
-    request(app.listen())
+  test('should enable Access-Control-Allow-Credentials on Simple request', async () => {
+    await request(app.listen())
       .get('/')
-      .set('Origin', 'http://koajs.com')
+      .set('Origin', 'https://husca.js.org')
       .expect('Access-Control-Allow-Credentials', 'true')
       .expect({ foo: 'bar' })
-      .expect(200, done);
+      .expect(200);
   });
 
-  test('should enable Access-Control-Allow-Credentials on Preflight request', function (done) {
-    request(app.listen())
+  test('should enable Access-Control-Allow-Credentials on Preflight request', async () => {
+    await request(app.listen())
       .options('/')
-      .set('Origin', 'http://koajs.com')
+      .set('Origin', 'https://husca.js.org')
       .set('Access-Control-Request-Method', 'DELETE')
       .expect('Access-Control-Allow-Credentials', 'true')
-      .expect(204, done);
+      .expect(204);
   });
 });
 
 describe('options.allowHeaders', function () {
-  test('should work with allowHeaders is string', function (done) {
+  test('should work with allowHeaders is string', async () => {
     const app = createApp({
       allowHeaders: 'X-PINGOTHER',
     });
 
-    request(app.listen())
+    await request(app.listen())
       .options('/')
-      .set('Origin', 'http://koajs.com')
+      .set('Origin', 'https://husca.js.org')
       .set('Access-Control-Request-Method', 'PUT')
       .expect('Access-Control-Allow-Headers', 'X-PINGOTHER')
-      .expect(204, done);
+      .expect(204);
   });
 
-  test('should work with allowHeaders is array', function (done) {
+  test('should work with allowHeaders is array', async () => {
     const app = createApp({
       allowHeaders: ['X-PINGOTHER'],
     });
 
-    request(app.listen())
+    await request(app.listen())
       .options('/')
-      .set('Origin', 'http://koajs.com')
+      .set('Origin', 'https://husca.js.org')
       .set('Access-Control-Request-Method', 'PUT')
       .expect('Access-Control-Allow-Headers', 'X-PINGOTHER')
-      .expect(204, done);
+      .expect(204);
   });
 
-  test('should set Access-Control-Allow-Headers to request access-control-request-headers header', function (done) {
+  test('should set Access-Control-Allow-Headers to request access-control-request-headers header', async () => {
     const app = createApp();
 
-    request(app.listen())
+    await request(app.listen())
       .options('/')
-      .set('Origin', 'http://koajs.com')
+      .set('Origin', 'https://husca.js.org')
       .set('Access-Control-Request-Method', 'PUT')
       .set('access-control-request-headers', 'X-PINGOTHER')
       .expect('Access-Control-Allow-Headers', 'X-PINGOTHER')
-      .expect(204, done);
+      .expect(204);
   });
 });
 
 describe('options.allowMethods', function () {
-  test('should work with allowMethods is array', function (done) {
+  test('should work with allowMethods is array', async () => {
     const app = createApp({
       allowMethods: ['GET', 'POST'],
     });
 
-    request(app.listen())
+    await request(app.listen())
       .options('/')
-      .set('Origin', 'http://koajs.com')
+      .set('Origin', 'https://husca.js.org')
       .set('Access-Control-Request-Method', 'PUT')
       .expect('Access-Control-Allow-Methods', 'GET,POST')
-      .expect(204, done);
+      .expect(204);
   });
 
-  test('should skip allowMethods', function (done) {
+  test('should skip allowMethods', async () => {
     const app = createApp({
       allowMethods: undefined,
     });
 
-    request(app.listen())
+    await request(app.listen())
       .options('/')
-      .set('Origin', 'http://koajs.com')
+      .set('Origin', 'https://husca.js.org')
       .set('Access-Control-Request-Method', 'PUT')
-      .expect(204, done);
+      .expect(204);
   });
 });
 
 describe('options.headersKeptOnError', function () {
-  test('should keep CORS headers after an error', function (done) {
+  test('should keep CORS headers after an error', async () => {
     const app = createApp({}, () => {
       throw new Error('Whoops!');
     });
 
-    request(app.listen())
+    await request(app.listen())
       .get('/')
-      .set('Origin', 'http://koajs.com')
-      .expect('Access-Control-Allow-Origin', 'http://koajs.com')
+      .set('Origin', 'https://husca.js.org')
+      .expect('Access-Control-Allow-Origin', 'https://husca.js.org')
       .expect('Vary', 'Origin')
       .expect(/Error/)
-      .expect(500, done);
+      .expect(500);
   });
 
-  test('should not affect OPTIONS requests', function (done) {
+  test('should not affect OPTIONS requests', async () => {
     const app = createApp({}, () => {
       throw new Error('Whoops!');
     });
 
-    request(app.listen())
+    await request(app.listen())
       .options('/')
-      .set('Origin', 'http://koajs.com')
+      .set('Origin', 'https://husca.js.org')
       .set('Access-Control-Request-Method', 'PUT')
-      .expect('Access-Control-Allow-Origin', 'http://koajs.com')
-      .expect(204, done);
+      .expect('Access-Control-Allow-Origin', 'https://husca.js.org')
+      .expect(204);
   });
 
-  test('should not keep unrelated headers', function (done) {
+  test('should not keep unrelated headers', async () => {
     const app = createApp({}, (ctx) => {
       ctx.response.setHeader('X-Example', 'Value');
       throw new Error('Whoops!');
     });
 
-    request(app.listen())
+    await request(app.listen())
       .get('/')
-      .set('Origin', 'http://koajs.com')
-      .expect('Access-Control-Allow-Origin', 'http://koajs.com')
+      .set('Origin', 'https://husca.js.org')
+      .expect('Access-Control-Allow-Origin', 'https://husca.js.org')
       .expect(/Error/)
-      .expect(500, function (err, res) {
-        if (err) {
-          return done(err);
-        }
+      .expect(500)
+      .expect((res) => {
         assert(!res.headers['x-example']);
-        done();
       });
   });
 
-  test('should not keep CORS headers after an error if keepHeadersOnError is false', function (done) {
+  test('should not keep CORS headers after an error if keepHeadersOnError is false', async () => {
     const app = createApp({ keepHeadersOnError: false }, () => {
       throw new Error('Whoops!');
     });
 
-    request(app.listen())
+    await request(app.listen())
       .get('/')
-      .set('Origin', 'http://koajs.com')
+      .set('Origin', 'https://husca.js.org')
       .expect(/Error/)
-      .expect(500, function (err, res) {
-        if (err) {
-          return done(err);
-        }
+      .expect(500)
+      .expect((res) => {
         assert(!res.headers['access-control-allow-origin']);
         assert(!res.headers.vary);
-        done();
       });
   });
 });
@@ -575,17 +542,17 @@ describe('other middleware has been set `Vary` header to Accept-Encoding', funct
     ),
   );
 
-  test('should append `Vary` header to Origin', function (done) {
-    request(app.listen())
+  test('should append `Vary` header to Origin', async () => {
+    await request(app.listen())
       .get('/')
-      .set('Origin', 'http://koajs.com')
+      .set('Origin', 'https://husca.js.org')
       .expect('Vary', 'Accept-Encoding, Origin')
       .expect({ foo: 'bar' })
-      .expect(200, done);
+      .expect(200);
   });
 });
 describe('other middleware has set vary header on Error', function () {
-  test('should append `Origin to other `Vary` header', function (done) {
+  test('should append `Origin to other `Vary` header', async () => {
     const app = createApp({}, () => {
       const error = new Error('Whoops!');
       // @ts-ignore
@@ -593,14 +560,14 @@ describe('other middleware has set vary header on Error', function () {
       throw error;
     });
 
-    request(app.listen())
+    await request(app.listen())
       .get('/')
-      .set('Origin', 'http://koajs.com')
+      .set('Origin', 'https://husca.js.org')
       .expect('Vary', 'Accept-Encoding, Origin')
       .expect(/Error/)
-      .expect(500, done);
+      .expect(500);
   });
-  test('should preserve `Vary: *`', function (done) {
+  test('should preserve `Vary: *`', async () => {
     const app = createApp({}, () => {
       const error = new Error('Whoops!');
       // @ts-ignore
@@ -608,14 +575,14 @@ describe('other middleware has set vary header on Error', function () {
       throw error;
     });
 
-    request(app.listen())
+    await request(app.listen())
       .get('/')
-      .set('Origin', 'http://koajs.com')
+      .set('Origin', 'https://husca.js.org')
       .expect('Vary', '*')
       .expect(/Error/)
-      .expect(500, done);
+      .expect(500);
   });
-  test('should not append Origin` if already present in `Vary`', function (done) {
+  test('should not append Origin` if already present in `Vary`', async () => {
     const app = createApp({}, () => {
       const error = new Error('Whoops!');
       // @ts-ignore
@@ -623,85 +590,85 @@ describe('other middleware has set vary header on Error', function () {
       throw error;
     });
 
-    request(app.listen())
+    await request(app.listen())
       .get('/')
-      .set('Origin', 'http://koajs.com')
+      .set('Origin', 'https://husca.js.org')
       .expect('Vary', 'Origin, Accept-Encoding')
       .expect(/Error/)
-      .expect(500, done);
+      .expect(500);
   });
 });
 
 describe('options.privateNetworkAccess=false', function () {
   const app = createApp({ privateNetworkAccess: false });
 
-  test('should not set `Access-Control-Allow-Private-Network` on not OPTIONS', function (done) {
-    request(app.listen())
+  test('should not set `Access-Control-Allow-Private-Network` on not OPTIONS', async () => {
+    await request(app.listen())
       .get('/')
-      .set('Origin', 'http://koajs.com')
+      .set('Origin', 'https://husca.js.org')
       .set('Access-Control-Request-Method', 'PUT')
       .expect((res) => {
         assert(!('Access-Control-Allow-Private-Network' in res.headers));
       })
-      .expect(200, done);
+      .expect(200);
   });
 
-  test('should not set `Access-Control-Allow-Private-Network` if `Access-Control-Request-Private-Network` not exist on OPTIONS', function (done) {
-    request(app.listen())
+  test('should not set `Access-Control-Allow-Private-Network` if `Access-Control-Request-Private-Network` not exist on OPTIONS', async () => {
+    await request(app.listen())
       .options('/')
-      .set('Origin', 'http://koajs.com')
+      .set('Origin', 'https://husca.js.org')
       .set('Access-Control-Request-Method', 'PUT')
       .expect((res) => {
         assert(!('Access-Control-Allow-Private-Network' in res.headers));
       })
-      .expect(204, done);
+      .expect(204);
   });
 
-  test('should not set `Access-Control-Allow-Private-Network` if `Access-Control-Request-Private-Network` exist on OPTIONS', function (done) {
-    request(app.listen())
+  test('should not set `Access-Control-Allow-Private-Network` if `Access-Control-Request-Private-Network` exist on OPTIONS', async () => {
+    await request(app.listen())
       .options('/')
-      .set('Origin', 'http://koajs.com')
+      .set('Origin', 'https://husca.js.org')
       .set('Access-Control-Request-Method', 'PUT')
       .set('Access-Control-Request-Private-Network', 'true')
       .expect((res) => {
         assert(!('Access-Control-Allow-Private-Network' in res.headers));
       })
-      .expect(204, done);
+      .expect(204);
   });
 });
 
 describe('options.privateNetworkAccess=true', function () {
   const app = createApp({ privateNetworkAccess: true });
 
-  test('should not set `Access-Control-Allow-Private-Network` on not OPTIONS', function (done) {
-    request(app.listen())
+  test('should not set `Access-Control-Allow-Private-Network` on not OPTIONS', async () => {
+    await request(app.listen())
       .get('/')
-      .set('Origin', 'http://koajs.com')
+      .set('Origin', 'https://husca.js.org')
       .set('Access-Control-Request-Method', 'PUT')
       .expect((res) => {
         assert(!('Access-Control-Allow-Private-Network' in res.headers));
       })
-      .expect(200, done);
+      .expect(200);
   });
 
-  test('should not set `Access-Control-Allow-Private-Network` if `Access-Control-Request-Private-Network` not exist on OPTIONS', function (done) {
-    request(app.listen())
+  test('should not set `Access-Control-Allow-Private-Network` if `Access-Control-Request-Private-Network` not exist on OPTIONS', async () => {
+    await request(app.listen())
       .options('/')
-      .set('Origin', 'http://koajs.com')
+      .set('Origin', 'https://husca.js.org')
       .set('Access-Control-Request-Method', 'PUT')
       .expect((res) => {
         assert(!('Access-Control-Allow-Private-Network' in res.headers));
       })
-      .expect(204, done);
+      .expect(204);
   });
 
-  test('should always set `Access-Control-Allow-Private-Network` if `Access-Control-Request-Private-Network` exist on OPTIONS', function (done) {
-    request(app.listen())
+  test('should always set `Access-Control-Allow-Private-Network` if `Access-Control-Request-Private-Network` exist on OPTIONS', async () => {
+    await request(app.listen())
       .options('/')
-      .set('Origin', 'http://koajs.com')
+      .set('Origin', 'https://husca.js.org')
       .set('Access-Control-Request-Method', 'PUT')
       .set('Access-Control-Request-Private-Network', 'true')
-      .expect('Access-Control-Allow-Private-Network', 'true')
-      .expect(204, done);
+      .expect(204)
+      .expect('Access-Control-Allow-Private-Network', 'true');
   });
 });

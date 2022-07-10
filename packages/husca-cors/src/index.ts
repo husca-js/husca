@@ -189,7 +189,7 @@ export const cors = (options: CorsOptions = {}) => {
 
       if (
         options.privateNetworkAccess &&
-        request.headers['Access-Control-Request-Private-Network']
+        request.headers['access-control-request-private-network']
       ) {
         response.setHeader('Access-Control-Allow-Private-Network', 'true');
       }
