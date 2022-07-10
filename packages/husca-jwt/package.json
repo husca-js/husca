@@ -1,0 +1,59 @@
+{
+  "name": "@husca/jwt",
+  "version": "0.0.0",
+  "description": "json token中间件",
+  "keywords": [
+    "jwt",
+    "json web token"
+  ],
+  "contributors": [
+    "罪 <fanwenhua1990@gmail.com> (https://github.com/geekact)"
+  ],
+  "repository": "git@github.com:husca-js/husca.git",
+  "homepage": "https://husca.js.org",
+  "license": "MIT",
+  "type": "module",
+  "types": "dist/index.d.ts",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "package.json",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "test": "vitest",
+    "prepublishOnly": "tsup",
+    "build": "tsup"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": "^16.13 || ^18"
+  },
+  "peerDependencies": {
+    "@husca/husca": "^0.x"
+  },
+  "dependencies": {
+    "@types/jsonwebtoken": "^8.5.8",
+    "jsonwebtoken": "^8.5.1"
+  },
+  "devDependencies": {
+    "@husca/husca": "^0.0.13",
+    "@types/node": "^18.0.3",
+    "@types/supertest": "^2.0.12",
+    "c8": "^7.11.3",
+    "supertest": "^6.2.4",
+    "ts-expect": "^1.3.0",
+    "typescript": "^4.7.4",
+    "vitest": "^0.17.0"
+  }
+}
