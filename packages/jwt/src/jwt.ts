@@ -45,7 +45,7 @@ export const jwt = <UserType = object>(
 
   getToken && tokenResolvers.unshift(getToken);
 
-  return createSlot('web', async (ctx, next) => {
+  return createSlot(async (ctx, next) => {
     let token: string | null | undefined;
     for (const resolver of tokenResolvers) {
       if ((token = resolver(ctx, options))) break;

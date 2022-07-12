@@ -93,7 +93,7 @@ test('type checking', () => {
   query({});
   // @ts-expect-error
   query();
-  manageSlots('web').load(query({}));
+  manageSlots().load(query({}));
   // @ts-expect-error
   manageSlots('console').load(query({}));
   // @ts-expect-error

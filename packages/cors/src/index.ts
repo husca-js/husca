@@ -93,7 +93,7 @@ export const cors = (options: CorsOptions = {}) => {
 
   options.keepHeadersOnError = options.keepHeadersOnError !== false;
 
-  return createSlot('web', async (ctx, next) => {
+  return createSlot(async (ctx, next) => {
     const { request, response } = ctx;
     // If the Origin header is not present terminate this set of steps.
     // The request is outside the scope of this specification.

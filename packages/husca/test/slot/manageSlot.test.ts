@@ -8,15 +8,19 @@ import {
   MixedSlotManager,
 } from '../../src/slot';
 
-test('manage web slots', () => {
-  const webSlot1 = createSlot<{ a: string }>('web', () => {});
-  const webSlot2 = createSlot<{ b: number }>('web', () => {});
-  const mixedSlot3 = createSlot<{ c: object }>('mixed', () => {});
+test('instance', () => {
+  expect(manageSlots()).toBeInstanceOf(WebSlotManager);
+  expect(manageSlots('web')).toBeInstanceOf(WebSlotManager);
+  expect(manageSlots('console')).toBeInstanceOf(ConsoleSlotManager);
+  expect(manageSlots('mixed')).toBeInstanceOf(MixedSlotManager);
+});
 
-  const slots = manageSlots('web')
-    .load(webSlot1)
-    .load(webSlot2)
-    .load(mixedSlot3);
+test('manage web slots', () => {
+  const webSlot1 = createSlot<{ a: string }>(() => {});
+  const webSlot2 = createSlot<{ b: number }>(() => {});
+  const mixedSlot3 = createSlot<{ c: object }>(() => {}, 'mixed');
+
+  const slots = manageSlots().load(webSlot1).load(webSlot2).load(mixedSlot3);
 
   expect(SlotManager.flatten(slots)).toHaveLength(3);
   expect(slots).toBeInstanceOf(WebSlotManager);
@@ -37,13 +41,13 @@ test('manage web slots', () => {
   >(false);
 
   // @ts-expect-error
-  slots.load(createSlot('console', () => {}));
+  slots.load(createSlot(() => {}, 'console'));
 });
 
 test('manage console slots', () => {
-  const consoleSlot1 = createSlot<{ a: string }>('console', () => {});
-  const consoleSlot2 = createSlot<{ b: number }>('console', () => {});
-  const mixedSlot3 = createSlot<{ c: object }>('mixed', () => {});
+  const consoleSlot1 = createSlot<{ a: string }>(() => {}, 'console');
+  const consoleSlot2 = createSlot<{ b: number }>(() => {}, 'console');
+  const mixedSlot3 = createSlot<{ c: object }>(() => {}, 'mixed');
 
   const slots = manageSlots('console')
     .load(consoleSlot1)
@@ -69,13 +73,13 @@ test('manage console slots', () => {
   >(false);
 
   // @ts-expect-error
-  slots.load(createSlot('web', () => {}));
+  slots.load(createSlot(() => {}));
 });
 
 test('manage mixed slots', () => {
-  const mixedSlot1 = createSlot<{ a: string }>('mixed', () => {});
-  const mixedSlot2 = createSlot<{ b: number }>('mixed', () => {});
-  const mixedSlot3 = createSlot<{ c: object }>('mixed', () => {});
+  const mixedSlot1 = createSlot<{ a: string }>(() => {}, 'mixed');
+  const mixedSlot2 = createSlot<{ b: number }>(() => {}, 'mixed');
+  const mixedSlot3 = createSlot<{ c: object }>(() => {}, 'mixed');
 
   const slots = manageSlots('mixed')
     .load(mixedSlot1)
@@ -101,21 +105,21 @@ test('manage mixed slots', () => {
   >(false);
 
   // @ts-expect-error
-  slots.load(createSlot('web', () => {}));
+  slots.load(createSlot(() => {}));
   // @ts-expect-error
-  slots.load(createSlot('console', () => {}));
+  slots.load(createSlot(() => {}, 'console'));
 });
 
 test('manager and manager', () => {
-  const webSlots = manageSlots('web')
-    .load(manageSlots('web'))
+  const webSlots = manageSlots()
+    .load(manageSlots())
     .load(manageSlots('mixed'))
-    .load(manageSlots('web').load(createSlot<{ x: number }>('web', () => {})))
+    .load(manageSlots().load(createSlot<{ x: number }>(() => {})))
     .load(
       manageSlots('mixed')
-        .load(createSlot<{ y: number }>('mixed', () => {}))
-        .load(createSlot('mixed', () => {}))
-        .load(createSlot<{ z: number }>('mixed', () => {})),
+        .load(createSlot<{ y: number }>(() => {}, 'mixed'))
+        .load(createSlot(() => {}, 'mixed'))
+        .load(createSlot<{ z: number }>(() => {}, 'mixed')),
     );
   expect(SlotManager.flatten(webSlots)).toHaveLength(4);
   expectType<
@@ -126,24 +130,24 @@ test('manager and manager', () => {
   >(true);
 
   // @ts-expect-error
-  manageSlots('web').load(manageSlots('console'));
+  manageSlots().load(manageSlots('console'));
 
   manageSlots('console')
     .load(manageSlots('console'))
     .load(manageSlots('mixed'));
   // @ts-expect-error
-  manageSlots('console').load(manageSlots('web'));
+  manageSlots('console').load(manageSlots());
 
   manageSlots('mixed').load(manageSlots('mixed'));
   manageSlots('mixed')
     // @ts-expect-error
     .load(manageSlots('console'))
     // @ts-expect-error
-    .load(manageSlots('web'));
+    .load(manageSlots());
 });
 
 test('load empty slot', () => {
-  manageSlots('web')
+  manageSlots()
     .load(null)
     .load(null)
     // @ts-expect-error
@@ -163,7 +167,6 @@ test('load empty slot', () => {
 });
 
 test('misc type checking', () => {
-  // @ts-expect-error
   manageSlots();
   // @ts-expect-error
   manageSlots('');

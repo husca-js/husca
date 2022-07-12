@@ -21,11 +21,11 @@ const createApp = (
 ) => {
   const app = new WebApp({
     routers: [],
-    globalSlots: manageSlots('web')
+    globalSlots: manageSlots()
       .load(prevSlotManager || null)
       .load(unless ? jwt(options).unless(unless) : jwt(options))
       .load(
-        createSlot('web', (ctx) => {
+        createSlot((ctx) => {
           // @ts-ignore
           ctx.send(ctx.jwt?.user);
           callback?.(ctx);
@@ -221,8 +221,8 @@ describe('failure tests', () => {
         debug: true,
       },
       undefined,
-      manageSlots('web').load(
-        createSlot('web', (_, next) => {
+      manageSlots().load(
+        createSlot((_, next) => {
           return next().catch((err) => {
             expect(err).toHaveProperty('originalError');
             expect(err.originalError.message).toBe('jwt expired');

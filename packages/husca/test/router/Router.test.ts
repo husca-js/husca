@@ -144,7 +144,7 @@ describe('web router', () => {
       v1: string,
       v2: string,
     ): WebSlot<T> => {
-      return createSlot<T>('web', async (_, next) => {
+      return createSlot<T>(async (_, next) => {
         data += v1;
         await next();
         data += v2;
@@ -157,7 +157,7 @@ describe('web router', () => {
 
     let data = '';
     const globalLastSlot = createCustomSlot('3', '8');
-    const globalSlots = manageSlots('web')
+    const globalSlots = manageSlots()
       .load(createCustomSlot('1', 'a'))
       .load(createCustomSlot<{ hello: 'world' }>('2', '9'))
       .load(globalLastSlot);
@@ -238,9 +238,7 @@ describe('web router', () => {
 
   test('type checking', () => {
     const router = new Router({
-      groupSlots: manageSlots('web').load<{ hello: 'world' }>(
-        createSlot('web', () => {}),
-      ),
+      groupSlots: manageSlots().load<{ hello: 'world' }>(createSlot(() => {})),
     });
 
     expectType<TypeEqual<Router<object & { hello: 'world' }>, typeof router>>(
@@ -253,7 +251,7 @@ describe('web router', () => {
     });
     new Router({
       prefix: '/',
-      groupSlots: manageSlots('web'),
+      groupSlots: manageSlots(),
     });
     new Router({
       // @ts-expect-error
@@ -269,7 +267,7 @@ describe('web router', () => {
     });
     new Router({
       // @ts-expect-error
-      groupSlots: createSlot('web', () => {}),
+      groupSlots: createSlot(() => {}),
     });
   });
 });
@@ -323,11 +321,11 @@ describe('console commander', () => {
       v1: string,
       v2: string,
     ): ConsoleSlot<T> => {
-      return createSlot<T>('console', async (_, next) => {
+      return createSlot<T>(async (_, next) => {
         data += v1;
         await next();
         data += v2;
-      });
+      }, 'console');
     };
 
     const updateRouter = (commander: Commander) => {
@@ -393,7 +391,7 @@ describe('console commander', () => {
   test('type checking', () => {
     const commander = new Commander({
       groupSlots: manageSlots('console').load<{ hello: 'world' }>(
-        createSlot('console', () => {}),
+        createSlot(() => {}, 'console'),
       ),
     });
 
@@ -415,7 +413,7 @@ describe('console commander', () => {
     });
     new Commander({
       // @ts-expect-error
-      groupSlots: manageSlots('web'),
+      groupSlots: manageSlots(),
     });
     new Commander({
       // @ts-expect-error
@@ -423,7 +421,7 @@ describe('console commander', () => {
     });
     new Commander({
       // @ts-expect-error
-      groupSlots: createSlot('web', () => {}),
+      groupSlots: createSlot(() => {}),
     });
   });
 });

@@ -27,6 +27,15 @@ export class WebResponse extends ServerResponse {
     vary(this, field);
   }
 
+  get bodyType() {
+    const body = this._body;
+    if (body === null) return 'null';
+    if (typeof body === 'string') return 'string';
+    if (Buffer.isBuffer(body)) return 'buffer';
+    if (typeof (body as Stream).pipe === 'function') return 'stream';
+    return 'json';
+  }
+
   set body(val: Body) {
     const original = this._body;
     this._body = val;

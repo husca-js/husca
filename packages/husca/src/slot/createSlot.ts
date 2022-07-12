@@ -8,28 +8,28 @@ import type {
 } from './types';
 
 export function createSlot<Props extends object>(
-  target: typeof SlotTarget[0],
   fn: WebSlotFn<NonReadonly<Props>>,
+  target?: typeof SlotTarget[0],
 ): WebSlot<Props>;
 
 export function createSlot<Props extends object>(
-  target: typeof SlotTarget[1],
   fn: ConsoleSlotFn<NonReadonly<Props>>,
+  target: typeof SlotTarget[1],
 ): ConsoleSlot<Props>;
 
 export function createSlot<Props extends object>(
-  target: typeof SlotTarget[2],
   fn: MixedSlotFn<NonReadonly<Props>>,
+  target: typeof SlotTarget[2],
 ): MixedSlot<Props>;
 
 export function createSlot<Props extends object>(
-  target: typeof SlotTarget[number],
   fn: MixedSlotFn<NonReadonly<Props>>,
+  target: typeof SlotTarget[number],
 ): Slot<Props>;
 
 export function createSlot(
-  target: typeof SlotTarget[number],
   fn: (...args: any[]) => any,
+  target: typeof SlotTarget[number] = SlotTarget[0],
 ) {
   switch (target) {
     case SlotTarget[0]:

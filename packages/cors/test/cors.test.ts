@@ -17,11 +17,11 @@ const createApp = (
   return new WebApp({
     silent: true,
     routers: [],
-    globalSlots: manageSlots('web')
+    globalSlots: manageSlots()
       .load(prevSlotManager || null)
       .load(cors(options))
       .load(
-        createSlot('web', (ctx) => {
+        createSlot((ctx) => {
           ctx.send({ foo: 'bar' });
           callback?.(ctx);
         }),
@@ -96,14 +96,14 @@ describe('options.origin=*', function () {
 describe('options.secureContext=true', function () {
   const app = new WebApp({
     routers: [],
-    globalSlots: manageSlots('web')
+    globalSlots: manageSlots()
       .load(
         cors({
           secureContext: true,
         }),
       )
       .load(
-        createSlot('web', (ctx) => {
+        createSlot((ctx) => {
           ctx.send({ foo: 'bar' });
         }),
       ),
@@ -534,8 +534,8 @@ describe('other middleware has been set `Vary` header to Accept-Encoding', funct
   const app = createApp(
     {},
     undefined,
-    manageSlots('web').load(
-      createSlot('web', (ctx, next) => {
+    manageSlots().load(
+      createSlot((ctx, next) => {
         ctx.response.setHeader('Vary', 'Accept-Encoding');
         return next();
       }),

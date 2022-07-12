@@ -150,7 +150,7 @@ export class Router<Props extends object = object> extends BaseRouter<Props> {
       return next();
     };
 
-    return createSlot(this.getTarget(), middleware);
+    return createSlot(middleware, this.getTarget());
   }
 
   protected override getTarget() {
@@ -204,7 +204,7 @@ export class Commander<
       return next();
     };
 
-    return createSlot(this.getTarget(), middleware);
+    return createSlot(middleware, this.getTarget());
   }
 
   protected override getTarget() {

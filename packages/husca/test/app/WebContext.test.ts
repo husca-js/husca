@@ -97,8 +97,8 @@ describe('cookies', () => {
   test('get cookie from request', async () => {
     const app = new WebApp({
       routers: [],
-      globalSlots: manageSlots('web').load(
-        createSlot('web', (ctx) => {
+      globalSlots: manageSlots().load(
+        createSlot((ctx) => {
           ctx.send(String(ctx.cookies.get('x')));
         }),
       ),

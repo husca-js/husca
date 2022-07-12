@@ -7,7 +7,7 @@ test('compose to middleware', async () => {
   const fn2 = vitest.fn().mockImplementation((_, next) => next());
   const fn3 = vitest.fn().mockImplementation(() => 'succeed');
 
-  const slots = [createSlot('web', fn1), createSlot('web', fn2)];
+  const slots = [createSlot(fn1), createSlot(fn2)];
   const middleware = composeToMiddleware(slots);
 
   expect(middleware).toBeTypeOf('function');
@@ -36,7 +36,7 @@ test('middleware executing order', async () => {
     data += '3';
   });
 
-  const slots = [createSlot('web', fn1), createSlot('web', fn2)];
+  const slots = [createSlot(fn1), createSlot(fn2)];
 
   await composeToMiddleware(slots)({}, fn3);
   expect(data).toBe('12345');
@@ -46,7 +46,7 @@ test('compose to slot', () => {
   const fn1 = vitest.fn().mockImplementation((_, next) => next());
   const fn2 = vitest.fn().mockImplementation((_, next) => next());
 
-  const slots = [createSlot('web', fn1), createSlot('web', fn2)];
+  const slots = [createSlot(fn1), createSlot(fn2)];
   const slot = composeToSlot(slots);
 
   expect(slot).toBeInstanceOf(MixedSlot);
@@ -85,10 +85,10 @@ test('composed slot in middleware', async () => {
   });
 
   const slots = [
-    createSlot('web', fn1),
-    createSlot('web', fn2),
-    composeToSlot([createSlot('mixed', fn3), createSlot('console', fn4)]),
-    createSlot('mixed', fn5),
+    createSlot(fn1),
+    createSlot(fn2),
+    composeToSlot([createSlot(fn3, 'mixed'), createSlot(fn4, 'console')]),
+    createSlot(fn5, 'mixed'),
   ];
 
   await composeToMiddleware(slots)({}, fn6);
@@ -112,11 +112,7 @@ test('stop forwarding when next() is not called', async () => {
     data += 'never';
   });
 
-  const slots = [
-    createSlot('web', fn1),
-    createSlot('web', fn2),
-    createSlot('web', fn3),
-  ];
+  const slots = [createSlot(fn1), createSlot(fn2), createSlot(fn3)];
 
   await composeToMiddleware(slots)({});
   expect(data).toBe('123');
@@ -125,7 +121,7 @@ test('stop forwarding when next() is not called', async () => {
 test('never call next twice', async () => {
   await expect(
     composeToMiddleware([
-      createSlot('web', async (_, next) => {
+      createSlot(async (_, next) => {
         await next();
       }),
     ])({}),
@@ -133,7 +129,7 @@ test('never call next twice', async () => {
 
   await expect(
     composeToMiddleware([
-      createSlot('web', async (_, next) => {
+      createSlot(async (_, next) => {
         await next();
         await next();
       }),
@@ -144,7 +140,7 @@ test('never call next twice', async () => {
 test('throw error', async () => {
   await expect(
     composeToMiddleware([
-      createSlot('web', () => {
+      createSlot(() => {
         throw new Error('test error!');
       }),
     ])({}),
@@ -166,7 +162,7 @@ test('context', async () => {
     ctx.data += '3';
   });
 
-  const slots = [createSlot('web', fn1), createSlot('web', fn2)];
+  const slots = [createSlot(fn1), createSlot(fn2)];
   const context = { data: '' };
 
   await composeToMiddleware(slots)(context, fn3);

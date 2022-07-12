@@ -16,8 +16,8 @@ import {
 test('listen server', async () => {
   const app = new WebApp({
     routers: [],
-    globalSlots: manageSlots('web').load(
-      createSlot('web', (ctx) => {
+    globalSlots: manageSlots().load(
+      createSlot((ctx) => {
         ctx.send(201, 'hello world');
       }),
     ),
@@ -31,8 +31,8 @@ test('listen server', async () => {
 test('customize req and res', async () => {
   const app = new WebApp({
     routers: [],
-    globalSlots: manageSlots('web').load(
-      createSlot('web', (ctx) => {
+    globalSlots: manageSlots().load(
+      createSlot((ctx) => {
         expect(ctx.request).toBeInstanceOf(WebRequest);
         expect(ctx.response).toBeInstanceOf(WebResponse);
       }),
@@ -45,7 +45,7 @@ test('customize req and res', async () => {
 test('default respond 404', async () => {
   const app = new WebApp({
     routers: [],
-    globalSlots: manageSlots('web').load(createSlot('web', () => {})),
+    globalSlots: manageSlots().load(createSlot(() => {})),
   });
 
   await supertest(app.listen()).get('/').expect(404);
@@ -54,9 +54,9 @@ test('default respond 404', async () => {
 test('execute middleware', async () => {
   const app = new WebApp({
     routers: [],
-    globalSlots: manageSlots('web')
+    globalSlots: manageSlots()
       .load(
-        createSlot<{ data: string }>('web', async (ctx, next) => {
+        createSlot<{ data: string }>(async (ctx, next) => {
           ctx.data = '1';
           await next();
           ctx.data += '4';
@@ -64,7 +64,7 @@ test('execute middleware', async () => {
         }),
       )
       .load(
-        createSlot<{ data: string }>('web', async (ctx, next) => {
+        createSlot<{ data: string }>(async (ctx, next) => {
           ctx.data += '2';
           await next();
           ctx.data += '3';
@@ -135,8 +135,13 @@ describe('log', () => {
 test('type checking', () => {
   const app = new WebApp({ routers: [] });
 
-  app.on('error', (err, ctx) => {
+  app.on('error-log', (err, ctx) => {
     expectType<TypeEqual<HttpError, typeof err>>(true);
+    expectType<TypeEqual<WebCtx, typeof ctx>>(true);
+  });
+
+  app.on('error-end', (msg, ctx) => {
+    expectType<TypeEqual<string, typeof msg>>(true);
     expectType<TypeEqual<WebCtx, typeof ctx>>(true);
   });
 });

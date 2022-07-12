@@ -119,7 +119,7 @@ test('type checking', () => {
   options();
   manageSlots('console').load(options({}));
   // @ts-expect-error
-  manageSlots('web').load(options({}));
+  manageSlots().load(options({}));
   // @ts-expect-error
   manageSlots('mixed').load(options({}));
 });

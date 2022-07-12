@@ -165,7 +165,7 @@ interface Secnarios {
 }
 
 function runWebTests(testName: string, scenarios: Secnarios[]) {
-  const testSlot = createSlot('web', (ctx) => {
+  const testSlot = createSlot((ctx) => {
     ctx.send({ executed: true });
   });
 
@@ -182,7 +182,7 @@ function runWebTests(testName: string, scenarios: Secnarios[]) {
       test(`should ${acceptDeny} access to ${scenario.testSample} when configured with: ${config}`, function (done) {
         let app = new WebApp({
           routers: [],
-          globalSlots: manageSlots('web').load(testSlot.unless(config)),
+          globalSlots: manageSlots().load(testSlot.unless(config)),
         });
 
         request(app.listen())

@@ -33,5 +33,5 @@ export const composeToMiddleware = (slots: Slot[]): Middleware => {
 };
 
 export const composeToSlot = (slots: Slot[]): MixedSlot => {
-  return createSlot(SlotTarget[2], composeToMiddleware(slots));
+  return createSlot(composeToMiddleware(slots), SlotTarget[2]);
 };

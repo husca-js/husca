@@ -93,7 +93,7 @@ test('type checking', () => {
   params({});
   // @ts-expect-error
   params();
-  manageSlots('web').load(params({}));
+  manageSlots().load(params({}));
   // @ts-expect-error
   manageSlots('console').load(params({}));
   // @ts-expect-error
