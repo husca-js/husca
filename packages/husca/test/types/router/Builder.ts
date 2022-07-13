@@ -30,6 +30,20 @@ describe('router generic', () => {
   });
 
   new RouterBuilder('/', [], [], {
+    slots: [],
+    action: (ctx) => {
+      expectType<TypeEqual<WebCtx, typeof ctx>>(true);
+    },
+  });
+
+  new RouterBuilder('/', [], [], {
+    slots: undefined,
+    action: (ctx) => {
+      expectType<TypeEqual<WebCtx, typeof ctx>>(true);
+    },
+  });
+
+  new RouterBuilder('/', [], [], {
     slots: [createSlot<{ a: 'a' }>(noop), createSlot('mixed', noop)],
     action: (ctx) => {
       expectType<TypeEqual<WebCtx, typeof ctx>>(false);
@@ -86,6 +100,20 @@ describe('commander generic', () => {
     slots: [createSlot<{ a: 'a' }>('console', noop), createSlot('mixed', noop)],
     action: (ctx) => {
       expectType<TypeEqual<ConsoleCtx & { a: 'a' }, typeof ctx>>(true);
+    },
+  });
+
+  new CommanderBuilder('/', [], {
+    slots: [],
+    action: (ctx) => {
+      expectType<TypeEqual<ConsoleCtx, typeof ctx>>(true);
+    },
+  });
+
+  new CommanderBuilder('/', [], {
+    slots: undefined,
+    action: (ctx) => {
+      expectType<TypeEqual<ConsoleCtx, typeof ctx>>(true);
     },
   });
 
