@@ -9,8 +9,8 @@ import {
   Router,
   RouterOptions,
   WebSlotManager,
-} from '../../src';
-import { noop } from '../helpers/noop';
+} from '../../../src';
+import { noop } from '../../helpers/noop';
 
 describe('router generic', () => {
   const router = new Router({
@@ -46,4 +46,28 @@ describe('group slots', () => {
   expectType<
     TypeEqual<ConsoleSlotManager | undefined, CommanderOptions['groupSlots']>
   >(true);
+});
+
+describe('methods', () => {
+  const router = new Router();
+
+  router.get('/users', {});
+  router.post('/users', {});
+  router.put('/users', {});
+  router.patch('/users', {});
+  router.delete('/users', {});
+  router.head('/users', {});
+  router.options('/users', {});
+  router.all('/users', {});
+  router.customize(['POST', 'GET'], '/users', {});
+
+  router.get(['/users', '/teachers'], {});
+  router.post(['/users', '/teachers'], {});
+  router.put(['/users', '/teachers'], {});
+  router.patch(['/users', '/teachers'], {});
+  router.delete(['/users', '/teachers'], {});
+  router.head(['/users', '/teachers'], {});
+  router.options(['/users', '/teachers'], {});
+  router.all(['/users', '/teachers'], {});
+  router.customize(['POST', 'GET'], ['/users', '/teachers'], {});
 });

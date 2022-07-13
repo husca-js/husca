@@ -6,13 +6,9 @@ import {
   Router,
   WebSlot,
 } from '../../src';
-import {
-  BaseRouter,
-  Commander,
-  CommanderBuilder,
-  RouterBuilder,
-} from '../../src/router';
+import { BaseRouter, Commander, RouterBuilder } from '../../src/router';
 import { composeToMiddleware } from '../../src/utils/compose';
+import { noop } from '../helpers/noop';
 
 describe('web router', () => {
   test('restful methods', () => {
@@ -21,22 +17,24 @@ describe('web router', () => {
     RouterBuilder.METHODS.forEach((method) => {
       expect(router).toHaveProperty(method.toLowerCase());
       // @ts-ignore
-      expect(router[method.toLowerCase()]('')).toBeInstanceOf(RouterBuilder);
+      expect(router[method.toLowerCase()]).toBeTypeOf('function');
+      // @ts-ignore
+      expect(router[method.toLowerCase()]('', {})).toBeUndefined();
     });
   });
 
   test('additional "all" method', () => {
     const router = new Router();
-    expect(router).toHaveProperty('all');
-    expect(router.all('')).toBeInstanceOf(RouterBuilder);
+    expect(router.all).toBeTypeOf('function');
+    expect(router.all('', {})).toBeUndefined();
   });
 
   test('additional "customize" method', () => {
     const router = new Router();
-    expect(router).toHaveProperty('customize');
-    expect(router.customize(['GET', 'POST', 'PUT'], '')).toBeInstanceOf(
-      RouterBuilder,
-    );
+    expect(router.customize).toBeTypeOf('function');
+    expect(
+      router.customize(['GET', 'POST', 'DELETE'], '/url', {}),
+    ).toBeUndefined();
   });
 
   test('router is a slot', () => {
@@ -49,8 +47,12 @@ describe('web router', () => {
     const fn = vitest.fn();
     const fn1 = vitest.fn();
 
-    router.get(['/a', '/b']).action(fn);
-    router.get('/c').action(fn1);
+    router.get(['/a', '/b'], {
+      action: fn,
+    });
+    router.get('/c', {
+      action: fn1,
+    });
 
     const middleware = composeToMiddleware([
       Router.generateSlot(router, false),
@@ -86,7 +88,7 @@ describe('web router', () => {
 
   test('collect params', async () => {
     const router = new Router();
-    router.get('/api/users/:id/books/:bookId');
+    router.get('/api/users/:id/books/:bookId', {});
     const middleware = composeToMiddleware([
       Router.generateSlot(router, false),
     ]);
@@ -111,7 +113,7 @@ describe('web router', () => {
       throwIfMethodMisMatch: true,
     });
 
-    router.get('/api');
+    router.get('/api', {});
 
     const fn = vitest.fn();
     const middleware = composeToMiddleware([
@@ -151,7 +153,9 @@ describe('web router', () => {
     };
 
     const updateRouter = (router: Router) => {
-      router.get('/api').load(createCustomSlot('r1', 'r2'));
+      router.get('/api', {
+        slots: [createCustomSlot('r1', 'r2')],
+      });
     };
 
     let data = '';
@@ -248,7 +252,7 @@ describe('console commander', () => {
 
   test('create command', () => {
     const commander = new Commander();
-    expect(commander.create('test/me')).toBeInstanceOf(CommanderBuilder);
+    expect(commander.create('test/me', {})).toBeUndefined();
   });
 
   test('commander is a slot', () => {
@@ -259,7 +263,9 @@ describe('console commander', () => {
 
   test('match command', async () => {
     const commander = new Commander();
-    commander.create('test/me').action(() => {});
+    commander.create('test/me', {
+      action: noop,
+    });
 
     const middleware = composeToMiddleware([
       BaseRouter.generateSlot(commander, false),
@@ -293,7 +299,9 @@ describe('console commander', () => {
     };
 
     const updateRouter = (commander: Commander) => {
-      commander.create('test/me').load(createCustomSlot('r1', 'r2'));
+      commander.create('test/me', {
+        slots: [createCustomSlot('r1', 'r2')],
+      });
     };
 
     let data = '';

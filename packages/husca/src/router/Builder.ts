@@ -4,33 +4,38 @@ import {
   createSlot,
   Slot,
   SlotManager,
-  BaseSlotCompat,
   ConsoleSlotCompat,
   WebSlotCompat,
 } from '../slot';
-import { ConsoleCtx, WebCtx } from '../app';
+
+type Union2Intersection<T> = (
+  T extends any ? (arg: T) => void : never
+) extends (arg: infer P) => void
+  ? P
+  : never;
 
 export abstract class Builder<Props extends object = object> {
-  protected readonly slots: Slot[] = [];
+  protected declare _type_flag_: Props;
 
-  public static getSlots(builder: Builder) {
-    return builder.slots;
-  }
+  public readonly slots: Slot[];
 
-  load<P extends object>(slot: BaseSlotCompat<P> | null): Builder<Props & P> {
-    this.slots.push(...SlotManager.flatten(slot));
-    return this;
-  }
+  constructor(
+    slots: readonly (Slot | SlotManager)[] = [],
+    fn?: (ctx: any) => Promise<any> | any,
+  ) {
+    this.slots = slots.reduce<Slot[]>((carry, slot) => {
+      return carry.concat(SlotManager.flatten(slot));
+    }, []);
 
-  /**
-   * 不提供next的说明：
-   * 1. 中间件本身就是洋葱模型，没必要后置
-   * 2. next()可能会跳到另一个路由，但是因为加载路由顺序是随机的，所以这会导致重新启动后的行为不一致
-   * 3. Router中增加了参数`throwIfMethodMismatch`，为了防止误判，匹配到路由之后就不能再匹配其它路由了
-   */
-  action(fn: (ctx: any) => Promise<any> | any): void {
-    const slot = createSlot(this.getTarget(), (ctx, _next) => fn(ctx));
-    this.slots.push(slot);
+    if (typeof fn === 'function') {
+      /**
+       * 不提供next的说明：
+       * 1. 中间件本身就是洋葱模型，没必要后置
+       * 2. next()可能会跳到另一个路由，但是因为加载路由顺序是随机的，所以这会导致重新启动后的行为不一致
+       * 3. Router中增加了参数`throwIfMethodMismatch`，为了防止误判，匹配到路由之后就不能再匹配其它路由了
+       */
+      this.slots.push(createSlot(this.getTarget(), (ctx, _next) => fn(ctx)));
+    }
   }
 
   protected abstract getTarget(): typeof SlotTarget[number];
@@ -41,8 +46,19 @@ const pureUriPattern = /^[\/a-z0-9-_]+$/i;
 const duplicateSlash = /\/{2,}/g;
 const suffixSlash = /\/+$/;
 
+type WebSlot2Type<T> = T extends WebSlotCompat<infer R> ? R : object;
+
+export interface RouterBuilderOptions<
+  Props extends object,
+  T extends WebSlotCompat<object>[] | [],
+> {
+  slots?: T;
+  action?: (ctx: Props & Union2Intersection<WebSlot2Type<T[number]>>) => any;
+}
+
 export class RouterBuilder<
   Props extends object = object,
+  T extends WebSlotCompat<object>[] | [] = [],
 > extends Builder<Props> {
   public static METHODS = <const>[
     'GET',
@@ -60,8 +76,9 @@ export class RouterBuilder<
     prefix: string,
     protected readonly uris: string[],
     protected readonly methods: typeof RouterBuilder['METHODS'][number][],
+    options: RouterBuilderOptions<Props, T>,
   ) {
-    super();
+    super(options.slots, options.action);
     const uriPatterns: typeof this.uriPatterns = (this.uriPatterns = []);
 
     for (let i = uris.length; i-- > 0; ) {
@@ -78,14 +95,13 @@ export class RouterBuilder<
     }
   }
 
-  public static match(
-    builder: RouterBuilder,
+  public match(
     pathname: string,
     method: string,
   ): Record<string, unknown> | false {
-    if (!builder.methods.includes(method as any)) return false;
+    if (!this.methods.includes(method as any)) return false;
 
-    const patterns = builder.uriPatterns;
+    const patterns = this.uriPatterns;
     const params: Record<string, any> = {};
 
     for (let i = patterns.length; i-- > 0; ) {
@@ -98,7 +114,7 @@ export class RouterBuilder<
       if (matched.length < 2) return params;
 
       for (let keyIndex = matched.length; keyIndex-- > 1; ) {
-        params[keys[keyIndex - 1]!.name] = this.decodeURIComponent(
+        params[keys[keyIndex - 1]!.name] = RouterBuilder.decodeURIComponent(
           matched[keyIndex]!,
         );
       }
@@ -109,11 +125,8 @@ export class RouterBuilder<
     return false;
   }
 
-  public static matchPathname(
-    builder: RouterBuilder,
-    pathname: string,
-  ): boolean {
-    const patterns = builder.uriPatterns;
+  public matchPathname(pathname: string): boolean {
+    const patterns = this.uriPatterns;
 
     for (let i = patterns.length; i-- > 0; ) {
       const [regexp, , pureUri] = patterns[i]!;
@@ -131,39 +144,41 @@ export class RouterBuilder<
     }
   }
 
-  declare load: <P extends object>(
-    slot: WebSlotCompat<P> | null,
-  ) => RouterBuilder<Props & P>;
-
-  declare action: (fn: (ctx: WebCtx<Props>) => any) => void;
-
   protected getTarget() {
     return SlotTarget[0];
   }
 }
 
+type ConsoleSlot2Type<T> = T extends ConsoleSlotCompat<infer R> ? R : object;
+
+export interface CommanderBuilderOptions<
+  Props extends object,
+  T extends ConsoleSlotCompat<object>[] | [],
+> {
+  slots?: T;
+  action?: (
+    ctx: Props & Union2Intersection<ConsoleSlot2Type<T[number]>>,
+  ) => any;
+}
+
 export class CommanderBuilder<
   Props extends object = object,
+  T extends ConsoleSlotCompat<object>[] | [] = [],
 > extends Builder<Props> {
   protected readonly commands: string[];
 
-  constructor(prefix: string, commands: string[]) {
-    super();
+  constructor(
+    prefix: string,
+    commands: string[],
+    options: CommanderBuilderOptions<Props, T>,
+  ) {
+    super(options.slots, options.action);
     this.commands = commands.map((item) => prefix + item);
   }
 
-  public static match(
-    builder: CommanderBuilder<object>,
-    command: string,
-  ): boolean {
-    return builder.commands.includes(command);
+  public match(command: string): boolean {
+    return this.commands.includes(command);
   }
-
-  declare load: <P extends object>(
-    slot: ConsoleSlotCompat<P> | null,
-  ) => CommanderBuilder<Props & P>;
-
-  declare action: (fn: (ctx: ConsoleCtx<Props>) => any) => void;
 
   protected getTarget() {
     return SlotTarget[1];

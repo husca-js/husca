@@ -9,11 +9,19 @@ import {
   WebSlotManager,
   ConsoleSlotFn,
   WebSlotFn,
+  WebSlotCompat,
+  ConsoleSlotCompat,
 } from '../slot';
 import { SlotTarget } from '../slot/SlotTarget';
 import { composeToMiddleware } from '../utils/compose';
 import { toArray } from '../utils/toArray';
-import { Builder, CommanderBuilder, RouterBuilder } from './Builder';
+import {
+  Builder,
+  CommanderBuilder,
+  CommanderBuilderOptions,
+  RouterBuilder,
+  RouterBuilderOptions,
+} from './Builder';
 
 export abstract class BaseRouter<Props extends object = object> {
   public static generateSlot<Props extends object>(
@@ -59,56 +67,83 @@ export class Router<Props extends object = object> extends BaseRouter<Props> {
     this.throwIfMethodMismatch = options.throwIfMethodMisMatch || false;
   }
 
-  public get(uri: string | string[]): RouterBuilder<Props> {
-    return this.create(uri, ['GET', 'HEAD']);
+  public get<T extends WebSlotCompat<object>[] | []>(
+    uri: string | string[],
+    options: RouterBuilderOptions<Props, T>,
+  ): void {
+    return this.create(uri, ['GET', 'HEAD'], options);
   }
 
-  public post(uri: string | string[]): RouterBuilder<Props> {
-    return this.create(uri, ['POST']);
+  public post<T extends WebSlotCompat<object>[] | []>(
+    uri: string | string[],
+    options: RouterBuilderOptions<Props, T>,
+  ): void {
+    return this.create(uri, ['POST'], options);
   }
 
-  public put(uri: string | string[]): RouterBuilder<Props> {
-    return this.create(uri, ['PUT']);
+  public put<T extends WebSlotCompat<object>[] | []>(
+    uri: string | string[],
+    options: RouterBuilderOptions<Props, T>,
+  ): void {
+    return this.create(uri, ['PUT'], options);
   }
 
-  public patch(uri: string | string[]): RouterBuilder<Props> {
-    return this.create(uri, ['PATCH']);
+  public patch<T extends WebSlotCompat<object>[] | []>(
+    uri: string | string[],
+    options: RouterBuilderOptions<Props, T>,
+  ): void {
+    return this.create(uri, ['PATCH'], options);
   }
 
-  public delete(uri: string | string[]): RouterBuilder<Props> {
-    return this.create(uri, ['DELETE']);
+  public delete<T extends WebSlotCompat<object>[] | []>(
+    uri: string | string[],
+    options: RouterBuilderOptions<Props, T>,
+  ): void {
+    return this.create(uri, ['DELETE'], options);
   }
 
-  public head(uri: string | string[]): RouterBuilder<Props> {
-    return this.create(uri, ['HEAD']);
+  public head<T extends WebSlotCompat<object>[] | []>(
+    uri: string | string[],
+    options: RouterBuilderOptions<Props, T>,
+  ): void {
+    return this.create(uri, ['HEAD'], options);
   }
 
-  public options(uri: string | string[]): RouterBuilder<Props> {
-    return this.create(uri, ['OPTIONS']);
+  public options<T extends WebSlotCompat<object>[] | []>(
+    uri: string | string[],
+    options: RouterBuilderOptions<Props, T>,
+  ): void {
+    return this.create(uri, ['OPTIONS'], options);
   }
 
-  public all(uri: string | string[]): RouterBuilder<Props> {
-    return this.create(uri, RouterBuilder['METHODS'].slice());
+  public all<T extends WebSlotCompat<object>[] | []>(
+    uri: string | string[],
+    options: RouterBuilderOptions<Props, T>,
+  ): void {
+    return this.create(uri, RouterBuilder['METHODS'].slice(), options);
   }
 
-  public customize(
+  public customize<T extends WebSlotCompat<object>[] | []>(
     methods: typeof RouterBuilder['METHODS'][number][],
     uri: string | string[],
-  ): RouterBuilder<Props> {
-    return this.create(uri, methods);
+    options: RouterBuilderOptions<Props, T>,
+  ): void {
+    return this.create(uri, methods, options);
   }
 
   protected create(
     uri: string | string[],
     methods: typeof RouterBuilder['METHODS'][number][],
-  ): RouterBuilder<Props> {
-    const builder = new RouterBuilder<Props>(
+    options: RouterBuilderOptions<Props, any[]>,
+  ): void {
+    const builder = new RouterBuilder(
       this.prefix,
       toArray(uri),
       methods,
+      options,
     );
     this.builders.push(builder);
-    return builder;
+    return;
   }
 
   protected override generateSlot(
@@ -126,11 +161,11 @@ export class Router<Props extends object = object> extends BaseRouter<Props> {
 
       for (let i = 0; i < builders.length; ++i) {
         const builder = builders[i]!;
-        const params = RouterBuilder.match(builder, pathname, method);
+        const params = builder.match(pathname, method);
 
         if (params) {
           request.params = params;
-          slots = Builder.getSlots(builder);
+          slots = builder.slots;
           break;
         }
       }
@@ -141,7 +176,7 @@ export class Router<Props extends object = object> extends BaseRouter<Props> {
 
       if (throwIfMethodMismatch) {
         for (let i = 0; i < builders.length; ++i) {
-          if (RouterBuilder.matchPathname(builders[i]!, pathname)) {
+          if (builders[i]!.matchPathname(pathname)) {
             ctx.throw(405);
           }
         }
@@ -175,10 +210,17 @@ export class Commander<
     this.prefix = options.prefix || '';
   }
 
-  public create(command: string | string[]): CommanderBuilder<Props> {
-    const builder = new CommanderBuilder<Props>(this.prefix, toArray(command));
+  public create<T extends ConsoleSlotCompat<object>[] | []>(
+    command: string | string[],
+    options: CommanderBuilderOptions<Props, T>,
+  ): void {
+    const builder = new CommanderBuilder<Props, T>(
+      this.prefix,
+      toArray(command),
+      options,
+    );
     this.builders.push(builder);
-    return builder;
+    return;
   }
 
   protected override generateSlot(
@@ -193,11 +235,12 @@ export class Commander<
       for (let i = 0; i < builders.length; ++i) {
         const builder = builders[i]!;
 
-        if (CommanderBuilder.match(builder, command)) {
+        if (builder.match(command)) {
           ctx.response.commandMatched = true;
-          return composeToMiddleware(
-            groupSlots.concat(Builder.getSlots(builder)),
-          )(ctx, next);
+          return composeToMiddleware(groupSlots.concat(builder.slots))(
+            ctx,
+            next,
+          );
         }
       }
 

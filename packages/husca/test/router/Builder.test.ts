@@ -1,42 +1,30 @@
 import { describe, expect, test } from 'vitest';
-import {
-  ConsoleCtx,
-  ConsoleSlot,
-  createSlot,
-  manageSlots,
-  WebCtx,
-  WebSlot,
-} from '../../src';
-import { Builder, CommanderBuilder, RouterBuilder } from '../../src/router';
+import { ConsoleSlot, createSlot, manageSlots, WebSlot } from '../../src';
+import { CommanderBuilder, RouterBuilder } from '../../src/router';
 import { noop } from '../helpers/noop';
 
 describe('web router builder', () => {
   test('load slot', () => {
-    const builder = new RouterBuilder('/', [], []);
+    const builder = new RouterBuilder('/', [], [], {
+      slots: [
+        createSlot(noop),
+        createSlot('mixed', noop),
+        manageSlots('mixed'),
+        manageSlots().load(createSlot(noop)).load(createSlot(noop)),
+      ],
+    });
 
-    expect(Builder.getSlots(builder)).toHaveLength(0);
-    builder
-      .load(createSlot(noop)) // 1
-      .load(createSlot('mixed', noop)) // 2
-      .load(manageSlots('mixed'))
-      .load(manageSlots().load(createSlot(noop))) // 3
-      // @ts-expect-error
-      .load(manageSlots('console'))
-      // @ts-expect-error
-      .load(createSlot('console', noop)); // 4
-    expect(Builder.getSlots(builder)).toHaveLength(4);
+    expect(builder.slots).toHaveLength(4);
   });
 
   test('action is also a slot', () => {
-    const builder = new RouterBuilder('/', [], []);
-    const action = (_ctx: WebCtx) => {};
+    const builder = new RouterBuilder('/', [], [], {
+      slots: [createSlot(noop), createSlot(noop)],
+      action: () => {},
+    });
 
-    builder.load(createSlot(noop)).load(createSlot(noop)).action(action);
-
-    const slots = Builder.getSlots(builder);
-    const actionSlot = slots[2]!;
-    expect(slots).toHaveLength(3);
-    expect(actionSlot).toBeInstanceOf(WebSlot);
+    expect(builder.slots).toHaveLength(3);
+    expect(builder.slots[2]!).toBeInstanceOf(WebSlot);
   });
 
   test('match path and method', () => {
@@ -44,6 +32,7 @@ describe('web router builder', () => {
       '/api',
       ['/student', '/teacher'],
       ['GET', 'HEAD'],
+      {},
     );
 
     [
@@ -52,12 +41,8 @@ describe('web router builder', () => {
       ['/api/teacher', 'GET'],
       ['/api/teacher', 'HEAD'],
     ].forEach(([pathname, method]) => {
-      expect(RouterBuilder.match(builder, pathname!, method!)).toMatchObject(
-        {},
-      );
-      expect(
-        RouterBuilder.match(builder, pathname!.toUpperCase(), method!),
-      ).toMatchObject({});
+      expect(builder.match(pathname!, method!)).toMatchObject({});
+      expect(builder.match(pathname!.toUpperCase(), method!)).toMatchObject({});
     });
 
     [
@@ -68,7 +53,7 @@ describe('web router builder', () => {
       ['/teacher', 'GET'],
       ['/api/teacher', 'POST'],
     ].forEach(([pathname, method]) => {
-      expect(RouterBuilder.match(builder, pathname!, method!)).toBeFalsy();
+      expect(builder.match(pathname!, method!)).toBeFalsy();
     });
   });
 
@@ -77,6 +62,7 @@ describe('web router builder', () => {
       '/api',
       ['/student/:sid', '/teacher/:tid/:gid/suffix'],
       ['GET', 'HEAD'],
+      {},
     );
 
     [
@@ -85,12 +71,10 @@ describe('web router builder', () => {
       <const>['/api/teacher/10/20/suffix', 'GET', { tid: '10', gid: '20' }],
       <const>['/api/teacher/3/5/suffix', 'HEAD', { tid: '3', gid: '5' }],
     ].forEach(([pathname, method, params]) => {
-      expect(RouterBuilder.match(builder, pathname!, method!)).toMatchObject(
+      expect(builder.match(pathname!, method!)).toMatchObject(params);
+      expect(builder.match(pathname!.toUpperCase(), method!)).toMatchObject(
         params,
       );
-      expect(
-        RouterBuilder.match(builder, pathname!.toUpperCase(), method!),
-      ).toMatchObject(params);
     });
 
     [
@@ -101,7 +85,7 @@ describe('web router builder', () => {
       ['/api/teacher/3/7/mmfixt', 'HEAD'],
       ['/api/teacher/3/14/suffix', 'POST'],
     ].forEach(([pathname, method]) => {
-      expect(RouterBuilder.match(builder, pathname!, method!)).toBeFalsy();
+      expect(builder.match(pathname!, method!)).toBeFalsy();
     });
   });
 
@@ -110,6 +94,7 @@ describe('web router builder', () => {
       '/api',
       ['/student/:sid', '/teacher/:tid/:gid/suffix', '/student', '/teacher'],
       [],
+      {},
     );
 
     [
@@ -118,7 +103,7 @@ describe('web router builder', () => {
       '/api/student/3',
       '/api/teacher/1/2/suffix',
     ].forEach((pathname) => {
-      expect(RouterBuilder.matchPathname(builder, pathname!)).toBeTruthy();
+      expect(builder.matchPathname(pathname!)).toBeTruthy();
     });
 
     [
@@ -127,17 +112,8 @@ describe('web router builder', () => {
       '/api/student/3/a',
       '/api/teacher/1/suffix',
     ].forEach((pathname) => {
-      expect(RouterBuilder.matchPathname(builder, pathname!)).toBeFalsy();
+      expect(builder.matchPathname(pathname!)).toBeFalsy();
     });
-  });
-
-  test('action has no next parameter', () => {
-    const builder = new RouterBuilder('/', [], []);
-
-    builder.action(noop);
-    builder.action((_ctx) => {});
-    // @ts-expect-error
-    builder.action((_ctx, _next) => {});
   });
 
   test('prefix + uri', () => {
@@ -151,73 +127,51 @@ describe('web router builder', () => {
       ['/api', 'user', '/apiuser'],
       ['api', 'user', '/apiuser'],
     ].forEach(([a, b, c]) => {
-      const builder = new RouterBuilder(a!, [b!], []);
+      const builder = new RouterBuilder(a!, [b!], [], {});
       expect(builder['uris']).toMatchObject([c]);
     });
-  });
-
-  test('action stop chain', () => {
-    expect(new RouterBuilder('', [], []).action(noop)).toBeUndefined();
   });
 });
 
 describe('console commander builder', () => {
   test('load slot', () => {
-    const builder = new CommanderBuilder('/', []);
+    const builder = new CommanderBuilder('/', [], {
+      slots: [
+        createSlot('console', noop),
+        createSlot('mixed', noop),
+        manageSlots('mixed'),
+        manageSlots('console')
+          .load(createSlot('console', noop))
+          .load(createSlot('console', noop)),
+      ],
+    });
 
-    expect(Builder.getSlots(builder)).toHaveLength(0);
-    builder
-      .load(createSlot('console', noop)) // 1
-      .load(createSlot('mixed', noop)) // 2
-      .load(manageSlots('mixed'))
-      .load(manageSlots('console').load(createSlot('console', noop))) // 3
-      // @ts-expect-error
-      .load(manageSlots())
-      // @ts-expect-error
-      .load(createSlot(noop)); // 4
-    expect(Builder.getSlots(builder)).toHaveLength(4);
+    expect(builder.slots).toHaveLength(4);
   });
 
   test('action is also a slot', () => {
-    const builder = new CommanderBuilder('/', []);
-    const action = (_ctx: ConsoleCtx) => {};
+    const builder = new CommanderBuilder('/', [], {
+      slots: [createSlot('console', noop), createSlot('console', noop)],
+      action: noop,
+    });
 
-    builder
-      .load(createSlot('console', noop))
-      .load(createSlot('console', noop))
-      .action(action);
-
-    const slots = Builder.getSlots(builder);
-    const actionSlot = slots[2]!;
-    expect(slots).toHaveLength(3);
-    expect(actionSlot).toBeInstanceOf(ConsoleSlot);
+    expect(builder.slots).toHaveLength(3);
+    expect(builder.slots[2]).toBeInstanceOf(ConsoleSlot);
   });
 
   test('match command', () => {
-    const builder = new CommanderBuilder('api', [
-      ':for:student',
-      ':for:teacher',
-    ]);
+    const builder = new CommanderBuilder(
+      'api',
+      [':for:student', ':for:teacher'],
+      {},
+    );
 
     ['api:for:teacher', 'api:for:student'].forEach((command) => {
-      expect(CommanderBuilder.match(builder, command!)).toBeTruthy();
+      expect(builder.match(command!)).toBeTruthy();
     });
 
     ['api/for/teacher', 'api:for:students', 'student'].forEach((command) => {
-      expect(CommanderBuilder.match(builder, command!)).toBeFalsy();
+      expect(builder.match(command!)).toBeFalsy();
     });
-  });
-
-  test('action has no next parameter', () => {
-    const builder = new CommanderBuilder('/', []);
-
-    builder.action(noop);
-    builder.action((_ctx) => {});
-    // @ts-expect-error
-    builder.action((_ctx, _next) => {});
-  });
-
-  test('action stop chain', () => {
-    expect(new CommanderBuilder('', []).action(noop)).toBeUndefined();
   });
 });
