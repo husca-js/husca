@@ -51,7 +51,7 @@ runWebTests('with PATH (regexp) exception', [
 runWebTests('with EXT exception', [
   // 404 scenarios
   {
-    config: { ext: ['html', 'css'] },
+    config: { ext: ['.html', '.css'] },
     testSample: '/index.html',
     expected: 404,
   },

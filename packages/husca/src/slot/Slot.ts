@@ -1,3 +1,4 @@
+import { extname } from 'node:path';
 import { ConsoleCtx, WebCtx } from '../app';
 import type { Document } from '../document';
 import type { Next } from '../utils/compose';
@@ -42,8 +43,6 @@ export abstract class Slot<Props extends object = object> {
   protected unless(
     options: UnlessOptions | NonNullable<UnlessOptions['custom']>,
   ): this {
-    if (!options) return this;
-
     const opts = typeof options === 'function' ? { custom: options } : options;
     this.unlessFn = (ctx, next) => {
       return this.shouldSkip(ctx, opts) ? next() : this._fn(ctx, next);
@@ -78,8 +77,13 @@ export class WebSlot<Props extends object = object> extends Slot<Props> {
     }
 
     if (options.ext) {
-      const { pathname } = ctx.request;
-      return toArray(options.ext).some((ext) => pathname.endsWith(ext));
+      const currentExt = extname(ctx.request.pathname);
+
+      if (currentExt === '') return false;
+
+      return toArray(options.ext).some((ext) => {
+        return currentExt === (ext.startsWith('.') ? ext : `.${ext}`);
+      });
     }
 
     if (options.method) {
