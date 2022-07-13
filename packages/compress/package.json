@@ -1,6 +1,6 @@
 {
   "name": "@husca/compress",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "description": "响应数据压缩中间件",
   "keywords": [
     "compress",
@@ -48,7 +48,7 @@
     "compressible": "^2.0.18"
   },
   "devDependencies": {
-    "@husca/husca": "^0.0.14",
+    "@husca/husca": "^0.0.15",
     "@types/bytes": "^3.1.1",
     "@types/compressible": "^2.0.0",
     "@types/node": "^18.0.3",
