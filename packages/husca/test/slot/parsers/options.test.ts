@@ -1,9 +1,12 @@
-import { expectType, TypeEqual } from 'ts-expect';
 import { assert, expect, test, vitest } from 'vitest';
-import { options, manageSlots, rule } from '../../../src';
-import { GetSlotType } from '../../../src/slot';
+import { options, rule } from '../../../src';
 import { composeToMiddleware } from '../../../src/utils/compose';
 import { ValidatorError } from '../../../src/validators';
+
+test('throw error when 0 arguments', () => {
+  // @ts-expect-error
+  expect(() => options()).toThrowError();
+});
 
 test('set options onto context', async () => {
   const middleware = composeToMiddleware([
@@ -90,36 +93,4 @@ test('regenerate source when alias is provided', async () => {
   expect(ctx['options']).toStrictEqual({
     test: 'x',
   });
-});
-
-test('type checking', () => {
-  const slot = options({
-    a: rule.number(),
-    b: rule.string().optional(),
-    c: rule.object({
-      d: rule.array(rule.boolean()),
-    }),
-  });
-
-  expectType<
-    TypeEqual<
-      {
-        readonly options: {
-          a: number;
-          b: string | undefined;
-          c: { d: boolean[] };
-        };
-      },
-      GetSlotType<typeof slot>
-    >
-  >(true);
-
-  options({});
-  // @ts-expect-error
-  options();
-  manageSlots('console').load(options({}));
-  // @ts-expect-error
-  manageSlots().load(options({}));
-  // @ts-expect-error
-  manageSlots('mixed').load(options({}));
 });

@@ -1,7 +1,5 @@
-import { expectType, TypeEqual } from 'ts-expect';
 import { assert, expect, test, vitest } from 'vitest';
-import { params, manageSlots, rule } from '../../../src';
-import { GetSlotType } from '../../../src/slot';
+import { params, rule } from '../../../src';
 import { composeToMiddleware } from '../../../src/utils/compose';
 import { ValidatorError } from '../../../src/validators';
 
@@ -66,36 +64,4 @@ test('throw error when request.body is invalid', async () => {
   };
 
   await expect(middleware(ctx)).to.rejects.toThrowError(Error);
-});
-
-test('type checking', () => {
-  const slot = params({
-    a: rule.number(),
-    b: rule.string().optional(),
-    c: rule.object({
-      d: rule.array(rule.boolean()),
-    }),
-  });
-
-  expectType<
-    TypeEqual<
-      {
-        readonly params: {
-          a: number;
-          b: string | undefined;
-          c: { d: boolean[] };
-        };
-      },
-      GetSlotType<typeof slot>
-    >
-  >(true);
-
-  params({});
-  // @ts-expect-error
-  params();
-  manageSlots().load(params({}));
-  // @ts-expect-error
-  manageSlots('console').load(params({}));
-  // @ts-expect-error
-  manageSlots('mixed').load(params({}));
 });

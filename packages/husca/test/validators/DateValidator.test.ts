@@ -1,12 +1,6 @@
 import { test, expect } from 'vitest';
-import { expectType, TypeEqual } from 'ts-expect';
 import { rule, Validator } from '../../src';
-import { DateValidator } from '../../src/validators/DateValidator';
-import {
-  ValidatorError,
-  GetValidatorType,
-  TransformedValidator,
-} from '../../src/validators';
+import { ValidatorError } from '../../src/validators';
 
 test('empty boundaries', () => {
   const validator = rule.datetime('');
@@ -154,60 +148,4 @@ test('timestamp', async () => {
   await expect(
     Validator.validate(validator, { date: Date.now() }, 'date'),
   ).to.resolves.toBeInstanceOf(Date);
-});
-
-test('type checking', () => {
-  const validator = rule.datetime('');
-  expect<TypeEqual<DateValidator<Date>, typeof validator>>(true);
-
-  const normal = validator.transform((data) => {
-    return expect<Date>(data), data;
-  });
-  expectType<TypeEqual<GetValidatorType<typeof normal>, Date>>(true);
-
-  const optionalAndDefault = validator
-    .optional()
-    // @ts-expect-error
-    .default('x')
-    // @ts-expect-error
-    .default(123)
-    .default(new Date())
-    .default(() => new Date())
-    .transform((data) => {
-      return expect<Date>(data), data;
-    });
-  expectType<TypeEqual<GetValidatorType<typeof optionalAndDefault>, Date>>(
-    true,
-  );
-
-  const defaultAndOptional = validator
-    .default(new Date())
-    .optional()
-    .transform((data) => {
-      return expect<Date>(data), data;
-    });
-  expectType<TypeEqual<GetValidatorType<typeof defaultAndOptional>, Date>>(
-    true,
-  );
-
-  const optional = validator.optional();
-  expectType<TypeEqual<GetValidatorType<typeof optional>, Date | undefined>>(
-    true,
-  );
-  const optionalWithTransform = optional.transform((data) => {
-    return expect<Date | undefined>(data), data;
-  });
-  expectType<
-    TypeEqual<GetValidatorType<typeof optionalWithTransform>, Date | undefined>
-  >(true);
-  expectType<TypeEqual<GetValidatorType<typeof optionalWithTransform>, Date>>(
-    false,
-  );
-
-  const hasDefault = validator.default(new Date()).transform((data) => {
-    return expect<Date>(data), data;
-  });
-  expectType<TypeEqual<GetValidatorType<typeof hasDefault>, Date>>(true);
-
-  expect<TransformedValidator<boolean>>(validator.transform(() => true));
 });

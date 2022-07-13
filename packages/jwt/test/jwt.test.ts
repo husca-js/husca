@@ -1,14 +1,12 @@
 import {
   createSlot,
   manageSlots,
-  GetSlotType,
   WebApp,
   WebCtx,
   WebSlotManager,
   WebUnlessOptions,
 } from '@husca/husca';
 import request from 'supertest';
-import { expectType, TypeEqual } from 'ts-expect';
 import { describe, expect, test } from 'vitest';
 import { jwt, JWTOptions } from '../src';
 import { sign } from 'jsonwebtoken';
@@ -555,40 +553,4 @@ describe('unless tests', () => {
         return res.body.foo !== 'bar' && 'Wrong user';
       });
   });
-});
-
-test('type checking', () => {
-  {
-    const slot = jwt({ secret: '' });
-    expectType<
-      TypeEqual<
-        GetSlotType<typeof slot>,
-        { readonly jwt: { user: object; token: string } }
-      >
-    >(true);
-  }
-
-  {
-    const slot = jwt<{ hello: 'x' }>({ secret: '' });
-    expectType<
-      TypeEqual<
-        GetSlotType<typeof slot>,
-        { readonly jwt: { user: { hello: 'x' }; token: string } }
-      >
-    >(true);
-  }
-
-  {
-    const slot = jwt<string>({ secret: '' });
-    expectType<
-      TypeEqual<
-        GetSlotType<typeof slot>,
-        { readonly jwt: { user: string; token: string } }
-      >
-    >(true);
-  }
-
-  jwt<JWTOptions['algorithms']>({ secret: '' });
-  // @ts-expect-error
-  jwt<JWTOptions['complete']>({ secret: '' });
 });

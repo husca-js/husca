@@ -168,16 +168,3 @@ test('context', async () => {
   await composeToMiddleware(slots)(context, fn3);
   expect(context.data).toBe('12345');
 });
-
-test('type checking', () => {
-  const middleware = composeToMiddleware([]);
-
-  middleware({}).then().catch();
-  middleware({}, () => new Promise(() => {}));
-  middleware({}, async () => {});
-
-  // @ts-expect-error
-  middleware();
-  // @ts-expect-error
-  middleware({}, () => {});
-});

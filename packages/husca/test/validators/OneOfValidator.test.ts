@@ -1,12 +1,6 @@
 import { test, expect } from 'vitest';
-import { expectType, TypeEqual } from 'ts-expect';
 import { rule, Validator } from '../../src';
-import { OneOfValidator } from '../../src/validators/OneOfValidator';
-import {
-  ValidatorError,
-  GetValidatorType,
-  TransformedValidator,
-} from '../../src/validators';
+import { ValidatorError } from '../../src/validators';
 
 test('empty boundaries', () => {
   const validator = rule.oneOf(rule.number(), rule.string());
@@ -41,15 +35,4 @@ test('compose validators', async () => {
   await expect(
     Validator.validate(validator, { value: [] }, 'value'),
   ).to.rejects.toThrowError(ValidatorError);
-});
-
-test('type checking', () => {
-  const validator = rule.oneOf(rule.number(), rule.string());
-  expect<TypeEqual<OneOfValidator<string | number>, typeof validator>>(true);
-
-  const normal = validator.transform((data) => {
-    return expect<string | number>(data), data;
-  });
-  expectType<TypeEqual<GetValidatorType<typeof normal>, string | number>>(true);
-  expect<TransformedValidator<boolean>>(validator.transform(() => true));
 });

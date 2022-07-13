@@ -1,4 +1,3 @@
-import { expectType, TypeEqual } from 'ts-expect';
 import { describe, expect, test, vitest } from 'vitest';
 import {
   ConsoleSlot,
@@ -235,41 +234,6 @@ describe('web router', () => {
     });
     expect(data).toBe('');
   });
-
-  test('type checking', () => {
-    const router = new Router({
-      groupSlots: manageSlots().load<{ hello: 'world' }>(createSlot(() => {})),
-    });
-
-    expectType<TypeEqual<Router<object & { hello: 'world' }>, typeof router>>(
-      true,
-    );
-
-    new Router();
-    new Router({
-      groupSlots: undefined,
-    });
-    new Router({
-      prefix: '/',
-      groupSlots: manageSlots(),
-    });
-    new Router({
-      // @ts-expect-error
-      anyKey: '',
-    });
-    new Router({
-      // @ts-expect-error
-      groupSlots: manageSlots('console'),
-    });
-    new Router({
-      // @ts-expect-error
-      groupSlots: manageSlots('mixed'),
-    });
-    new Router({
-      // @ts-expect-error
-      groupSlots: createSlot(() => {}),
-    });
-  });
 });
 
 describe('console commander', () => {
@@ -386,42 +350,5 @@ describe('console commander', () => {
     data = '';
     await middleware3(createCtx('notfound'));
     expect(data).toBe('');
-  });
-
-  test('type checking', () => {
-    const commander = new Commander({
-      groupSlots: manageSlots('console').load<{ hello: 'world' }>(
-        createSlot(() => {}, 'console'),
-      ),
-    });
-
-    expectType<
-      TypeEqual<Commander<object & { hello: 'world' }>, typeof commander>
-    >(true);
-
-    new Commander();
-    new Commander({
-      groupSlots: undefined,
-    });
-    new Commander({
-      prefix: '/',
-      groupSlots: manageSlots('console'),
-    });
-    new Commander({
-      // @ts-expect-error
-      anyKey: '',
-    });
-    new Commander({
-      // @ts-expect-error
-      groupSlots: manageSlots(),
-    });
-    new Commander({
-      // @ts-expect-error
-      groupSlots: manageSlots('mixed'),
-    });
-    new Commander({
-      // @ts-expect-error
-      groupSlots: createSlot(() => {}),
-    });
   });
 });

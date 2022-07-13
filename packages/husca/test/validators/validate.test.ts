@@ -1,4 +1,3 @@
-import { expectType, TypeEqual } from 'ts-expect';
 import { expect, test } from 'vitest';
 import { rule, validate } from '../../src';
 
@@ -39,24 +38,4 @@ test('rules', async () => {
       });
     }),
   );
-});
-
-test('type checking', async () => {
-  try {
-    const result = await validate(
-      {},
-      {
-        num: rule.number(),
-        opNum: rule.number().optional(),
-        str: rule.string().default('').optional(),
-      },
-    );
-
-    expectType<
-      TypeEqual<
-        { num: number; opNum: number | undefined; str: string },
-        typeof result
-      >
-    >(true);
-  } catch {}
 });

@@ -1,12 +1,6 @@
 import { test, expect } from 'vitest';
-import { expectType, TypeEqual } from 'ts-expect';
 import { rule, Validator } from '../../src';
-import { BooleanValidator } from '../../src/validators/BoolenValidator';
-import {
-  ValidatorError,
-  GetValidatorType,
-  TransformedValidator,
-} from '../../src/validators';
+import { ValidatorError } from '../../src/validators';
 
 test('empty boundaries', () => {
   const validator = rule.boolean();
@@ -74,58 +68,4 @@ test('invalid boolean', async () => {
       ).to.rejects.toThrowError(ValidatorError);
     }),
   );
-});
-
-test('type checking', () => {
-  const validator = rule.boolean();
-  expect<TypeEqual<BooleanValidator<boolean>, typeof validator>>(true);
-
-  const normal = validator.transform((data) => {
-    return expect<boolean>(data), data;
-  });
-  expectType<TypeEqual<GetValidatorType<typeof normal>, boolean>>(true);
-
-  const optionalAndDefault = validator
-    .optional()
-    .default('x')
-    .transform((data) => {
-      return expect<boolean>(data), data;
-    });
-  expectType<TypeEqual<GetValidatorType<typeof optionalAndDefault>, boolean>>(
-    true,
-  );
-
-  const defaultAndOptional = validator
-    .default('x')
-    .optional()
-    .transform((data) => {
-      return expect<boolean>(data), data;
-    });
-  expectType<TypeEqual<GetValidatorType<typeof defaultAndOptional>, boolean>>(
-    true,
-  );
-
-  const optional = validator.optional();
-  expectType<TypeEqual<GetValidatorType<typeof optional>, boolean | undefined>>(
-    true,
-  );
-  const optionalWithTransform = optional.transform((data) => {
-    return expect<boolean | undefined>(data), data;
-  });
-  expectType<
-    TypeEqual<
-      GetValidatorType<typeof optionalWithTransform>,
-      boolean | undefined
-    >
-  >(true);
-  expectType<
-    TypeEqual<GetValidatorType<typeof optionalWithTransform>, boolean>
-  >(false);
-
-  const hasDefault = validator.default('').transform((data) => {
-    return expect<boolean>(data), data;
-  });
-  expectType<TypeEqual<GetValidatorType<typeof hasDefault>, boolean>>(true);
-
-  expect<TransformedValidator<boolean>>(validator.transform(() => true));
 });

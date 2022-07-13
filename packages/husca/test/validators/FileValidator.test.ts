@@ -1,12 +1,9 @@
 import { test, expect } from 'vitest';
-import { expectType, TypeEqual } from 'ts-expect';
 import { rule, Validator } from '../../src';
 import supertest from 'supertest';
 import { IncomingMessage, ServerResponse } from 'http';
 import formidable from 'formidable';
 import path from 'path';
-import { File, FileValidator } from '../../src/validators/FileValidator';
-import { GetValidatorType, TransformedValidator } from '../../src/validators';
 
 const parseFilesAndFields = (
   req: IncomingMessage,
@@ -165,30 +162,4 @@ test('set allowed mime types', async () => {
         .expect(400, /mime/);
     }),
   );
-});
-
-test('type checking', () => {
-  const validator = rule.file();
-  expect<TypeEqual<FileValidator<File>, typeof validator>>(true);
-
-  const normal = validator.transform((data) => {
-    return expect<File>(data), data;
-  });
-  expectType<TypeEqual<GetValidatorType<typeof normal>, File>>(true);
-
-  const optional = validator.optional();
-  expectType<TypeEqual<GetValidatorType<typeof optional>, File | undefined>>(
-    true,
-  );
-  const optionalWithTransform = optional.transform((data) => {
-    return expect<File | undefined>(data), data;
-  });
-  expectType<
-    TypeEqual<GetValidatorType<typeof optionalWithTransform>, File | undefined>
-  >(true);
-  expectType<TypeEqual<GetValidatorType<typeof optionalWithTransform>, string>>(
-    false,
-  );
-
-  expect<TransformedValidator<boolean>>(validator.transform(() => true));
 });

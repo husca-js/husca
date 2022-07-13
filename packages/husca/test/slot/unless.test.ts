@@ -1,7 +1,12 @@
 import request from 'supertest';
 import { describe, test } from 'vitest';
-import { createSlot, manageSlots, WebApp, WebCtx } from '../../src';
-import { WebUnlessOptions } from '../../src/slot';
+import {
+  createSlot,
+  manageSlots,
+  WebApp,
+  WebCtx,
+  WebUnlessOptions,
+} from '../../src';
 
 runWebTests('with PATH match exception', [
   // 404 scenarios
@@ -172,22 +177,20 @@ function runWebTests(testName: string, scenarios: Secnarios[]) {
   describe(testName, function () {
     scenarios.forEach((scenario) => {
       let acceptDeny = scenario.expected == 200 ? 'accept' : 'deny';
-
       let config = scenario.config || {
         path: scenario.path,
       };
-
       let testMethod = scenario.testMethod || 'get';
 
-      test(`should ${acceptDeny} access to ${scenario.testSample} when configured with: ${config}`, function (done) {
+      test(`should ${acceptDeny} access to ${scenario.testSample} when configured with: ${config}`, async () => {
         let app = new WebApp({
           routers: [],
           globalSlots: manageSlots().load(testSlot.unless(config)),
         });
 
-        request(app.listen())
+        await request(app.listen())
           [testMethod](scenario.testSample)
-          .expect(scenario.expected, done);
+          .expect(scenario.expected);
       });
     });
   });

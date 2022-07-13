@@ -1,14 +1,11 @@
 import { Server } from 'http';
 import createHttpError from 'http-errors';
 import supertest from 'supertest';
-import { expectType, TypeEqual } from 'ts-expect';
 import { describe, expect, test, vitest } from 'vitest';
 import {
   createSlot,
-  HttpError,
   manageSlots,
   WebApp,
-  WebCtx,
   WebRequest,
   WebResponse,
 } from '../../src';
@@ -129,19 +126,5 @@ describe('log', () => {
     app.log(createHttpError(503, 'msg'));
     expect(spy).toHaveBeenCalledTimes(2);
     spy.mockRestore();
-  });
-});
-
-test('type checking', () => {
-  const app = new WebApp({ routers: [] });
-
-  app.on('error-log', (err, ctx) => {
-    expectType<TypeEqual<HttpError, typeof err>>(true);
-    expectType<TypeEqual<WebCtx, typeof ctx>>(true);
-  });
-
-  app.on('error-end', (msg, ctx) => {
-    expectType<TypeEqual<string, typeof msg>>(true);
-    expectType<TypeEqual<WebCtx, typeof ctx>>(true);
   });
 });

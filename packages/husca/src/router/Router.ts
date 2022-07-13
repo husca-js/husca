@@ -41,7 +41,7 @@ export abstract class BaseRouter<Props extends object = object> {
   protected abstract getTarget(): typeof SlotTarget[number];
 }
 
-export interface RouterOptions<Props extends object> {
+export interface RouterOptions<Props extends object = object> {
   prefix?: string;
   groupSlots?: WebSlotManager<Props>;
   throwIfMethodMisMatch?: boolean;
