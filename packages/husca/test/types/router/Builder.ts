@@ -2,9 +2,11 @@ import { expectType, TypeEqual } from 'ts-expect';
 import { describe } from 'vitest';
 import {
   CommanderBuilder,
+  ConsoleCtx,
   createSlot,
   manageSlots,
   RouterBuilder,
+  WebCtx,
 } from '../../../src';
 import { noop } from '../../helpers/noop';
 
@@ -16,30 +18,30 @@ describe('router generic', () => {
     ],
     action: (ctx) => {
       expectType<
-        TypeEqual<object & { a: 'a' } & { readonly b: 'b' }, typeof ctx>
+        TypeEqual<WebCtx & { a: 'a' } & { readonly b: 'b' }, typeof ctx>
       >(true);
     },
   });
 
   new RouterBuilder('/', [], [], {
     action: (ctx) => {
-      expectType<TypeEqual<object, typeof ctx>>(true);
+      expectType<TypeEqual<WebCtx, typeof ctx>>(true);
     },
   });
 
   new RouterBuilder('/', [], [], {
     slots: [createSlot<{ a: 'a' }>(noop), createSlot('mixed', noop)],
     action: (ctx) => {
-      expectType<TypeEqual<object, typeof ctx>>(false);
-      expectType<TypeEqual<object & { a: 'a' }, typeof ctx>>(true);
+      expectType<TypeEqual<WebCtx, typeof ctx>>(false);
+      expectType<TypeEqual<WebCtx & { a: 'a' }, typeof ctx>>(true);
     },
   });
 
   new RouterBuilder('/', [], [], {
     slots: [createSlot<{ a: 'a' }>(noop), manageSlots('mixed')],
     action: (ctx) => {
-      expectType<TypeEqual<object, typeof ctx>>(false);
-      expectType<TypeEqual<object & { a: 'a' }, typeof ctx>>(true);
+      expectType<TypeEqual<WebCtx, typeof ctx>>(false);
+      expectType<TypeEqual<WebCtx & { a: 'a' }, typeof ctx>>(true);
     },
   });
 
@@ -49,8 +51,8 @@ describe('router generic', () => {
       manageSlots().load<{ b: 'b' }>(createSlot(noop)).load(createSlot(noop)),
     ],
     action: (ctx) => {
-      expectType<TypeEqual<object, typeof ctx>>(false);
-      expectType<TypeEqual<object & { a: 'a' } & { b: 'b' }, typeof ctx>>(true);
+      expectType<TypeEqual<WebCtx, typeof ctx>>(false);
+      expectType<TypeEqual<WebCtx & { a: 'a' } & { b: 'b' }, typeof ctx>>(true);
     },
   });
 
@@ -60,8 +62,8 @@ describe('router generic', () => {
       manageSlots().load<{ b: 'b' }>(createSlot(noop)).load(createSlot(noop)),
     ],
     action: (ctx) => {
-      expectType<TypeEqual<object, typeof ctx>>(false);
-      expectType<TypeEqual<object & { a: 'a' } & { b: 'b' }, typeof ctx>>(true);
+      expectType<TypeEqual<WebCtx, typeof ctx>>(false);
+      expectType<TypeEqual<WebCtx & { a: 'a' } & { b: 'b' }, typeof ctx>>(true);
     },
   });
 });
@@ -73,9 +75,9 @@ describe('commander generic', () => {
       createSlot<{ readonly b: 'b' }>('console', noop),
     ],
     action: (ctx) => {
-      expectType<TypeEqual<object, typeof ctx>>(false);
+      expectType<TypeEqual<ConsoleCtx, typeof ctx>>(false);
       expectType<
-        TypeEqual<object & { a: 'a' } & { readonly b: 'b' }, typeof ctx>
+        TypeEqual<ConsoleCtx & { a: 'a' } & { readonly b: 'b' }, typeof ctx>
       >(true);
     },
   });
@@ -83,15 +85,15 @@ describe('commander generic', () => {
   new CommanderBuilder('/', [], {
     slots: [createSlot<{ a: 'a' }>('console', noop), createSlot('mixed', noop)],
     action: (ctx) => {
-      expectType<TypeEqual<object & { a: 'a' }, typeof ctx>>(true);
+      expectType<TypeEqual<ConsoleCtx & { a: 'a' }, typeof ctx>>(true);
     },
   });
 
   new CommanderBuilder('/', [], {
     slots: [createSlot<{ a: 'a' }>('console', noop), manageSlots('mixed')],
     action: (ctx) => {
-      expectType<TypeEqual<object, typeof ctx>>(false);
-      expectType<TypeEqual<object & { a: 'a' }, typeof ctx>>(true);
+      expectType<TypeEqual<ConsoleCtx, typeof ctx>>(false);
+      expectType<TypeEqual<ConsoleCtx & { a: 'a' }, typeof ctx>>(true);
     },
   });
 
@@ -103,8 +105,10 @@ describe('commander generic', () => {
         .load(createSlot('console', noop)),
     ],
     action: (ctx) => {
-      expectType<TypeEqual<object, typeof ctx>>(false);
-      expectType<TypeEqual<object & { a: 'a' } & { b: 'b' }, typeof ctx>>(true);
+      expectType<TypeEqual<ConsoleCtx, typeof ctx>>(false);
+      expectType<TypeEqual<ConsoleCtx & { a: 'a' } & { b: 'b' }, typeof ctx>>(
+        true,
+      );
     },
   });
 
@@ -116,8 +120,10 @@ describe('commander generic', () => {
         .load(createSlot('console', noop)),
     ],
     action: (ctx) => {
-      expectType<TypeEqual<object, typeof ctx>>(false);
-      expectType<TypeEqual<object & { a: 'a' } & { b: 'b' }, typeof ctx>>(true);
+      expectType<TypeEqual<ConsoleCtx, typeof ctx>>(false);
+      expectType<TypeEqual<ConsoleCtx & { a: 'a' } & { b: 'b' }, typeof ctx>>(
+        true,
+      );
     },
   });
 });

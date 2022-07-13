@@ -7,6 +7,7 @@ import {
   ConsoleSlotCompat,
   WebSlotCompat,
 } from '../slot';
+import { ConsoleCtx, WebCtx } from '../app';
 
 type Union2Intersection<T> = (
   T extends any ? (arg: T) => void : never
@@ -53,7 +54,9 @@ export interface RouterBuilderOptions<
   T extends WebSlotCompat<object>[] | [],
 > {
   slots?: T;
-  action?: (ctx: Props & Union2Intersection<WebSlot2Type<T[number]>>) => any;
+  action?: (
+    ctx: WebCtx<Props> & Union2Intersection<WebSlot2Type<T[number]>>,
+  ) => any;
 }
 
 export class RouterBuilder<
@@ -157,7 +160,7 @@ export interface CommanderBuilderOptions<
 > {
   slots?: T;
   action?: (
-    ctx: Props & Union2Intersection<ConsoleSlot2Type<T[number]>>,
+    ctx: ConsoleCtx<Props> & Union2Intersection<ConsoleSlot2Type<T[number]>>,
   ) => any;
 }
 
