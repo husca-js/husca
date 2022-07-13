@@ -1,0 +1,119 @@
+import { describe, expect, test } from 'vitest';
+import { EncodingMethods, Encodings } from '../src/encodings';
+
+describe('parseAcceptEncoding', () => {
+  const fixtures: {
+    input: string;
+    output: { [K in EncodingMethods]?: number };
+  }[] = [
+    {
+      input: 'br, gzip, compress, deflate',
+      output: {
+        br: 1,
+        gzip: 1,
+        compress: 1,
+        deflate: 1,
+        identity: undefined,
+      },
+    },
+    {
+      input: 'br, *; q = 0.1',
+      output: {
+        br: 1,
+        gzip: 0.1,
+        compress: undefined,
+        deflate: 0.1,
+        identity: undefined,
+      },
+    },
+    {
+      input: '*, gzip;q=0',
+      output: {
+        br: undefined,
+        gzip: 0,
+        compress: undefined,
+        deflate: 1,
+        identity: undefined,
+      },
+    },
+    {
+      input: 'identity',
+      output: {
+        br: undefined,
+        gzip: undefined,
+        compress: undefined,
+        deflate: undefined,
+        identity: 1,
+      },
+    },
+    {
+      input: 'gzip;q=0.8, identity;q=0.5, *;q=0.3',
+      output: {
+        br: undefined,
+        gzip: 0.8,
+        compress: undefined,
+        deflate: 0.3,
+        identity: 0.5,
+      },
+    },
+  ];
+
+  fixtures.forEach((fixture) => {
+    test(fixture.input, () => {
+      const encodings = new Encodings();
+      encodings.parseAcceptEncoding(fixture.input);
+      const { encodingWeights } = encodings;
+
+      (Object.keys(fixture.output) as EncodingMethods[]).forEach((encoding) => {
+        expect(encodingWeights.get(encoding)).toBe(fixture.output[encoding]);
+      });
+    });
+  });
+});
+
+describe('getPreferredContentEncoding', () => {
+  const fixtures: {
+    name?: string;
+    acceptEncoding: string;
+    preferredEncodings?: EncodingMethods[];
+    preferredEncoding: EncodingMethods;
+  }[] = [
+    {
+      acceptEncoding: 'gzip, br',
+      preferredEncoding: 'br',
+    },
+    {
+      acceptEncoding: 'gzip, br, *;q=0.5',
+      preferredEncoding: 'br',
+    },
+    {
+      acceptEncoding: 'br, gzip',
+      preferredEncoding: 'br',
+    },
+    {
+      acceptEncoding: 'gzip, deflate',
+      preferredEncoding: 'gzip',
+    },
+    {
+      name: 'w/o br as a preferred encoding',
+      acceptEncoding: 'gzip, deflate, br',
+      preferredEncodings: ['gzip', 'deflate'],
+      preferredEncoding: 'gzip',
+    },
+    {
+      acceptEncoding: 'identity',
+      preferredEncoding: 'identity',
+    },
+  ];
+
+  fixtures.forEach((fixture) => {
+    test(fixture.name || fixture.acceptEncoding, () => {
+      const encodings = new Encodings({
+        preferredEncodings: fixture.preferredEncodings,
+      });
+      encodings.parseAcceptEncoding(fixture.acceptEncoding);
+      const preferredEncoding = encodings.getPreferredContentEncoding();
+      expect(preferredEncoding).toBe(fixture.preferredEncoding);
+    });
+  });
+});
