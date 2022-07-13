@@ -3,11 +3,6 @@ import { options, rule } from '../../../src';
 import { composeToMiddleware } from '../../../src/utils/compose';
 import { ValidatorError } from '../../../src/validators';
 
-test('throw error when 0 arguments', () => {
-  // @ts-expect-error
-  expect(() => options()).toThrowError();
-});
-
 test('set options onto context', async () => {
   const middleware = composeToMiddleware([
     options({
