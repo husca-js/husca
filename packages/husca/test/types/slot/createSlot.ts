@@ -13,9 +13,9 @@ import { noop } from '../../helpers/noop';
 
 describe('slot instance', () => {
   expectType<WebSlot>(createSlot(noop));
-  expectType<WebSlot>(createSlot(noop, 'web'));
-  expectType<ConsoleSlot>(createSlot(noop, 'console'));
-  expectType<MixedSlot>(createSlot(noop, 'mixed'));
+  expectType<WebSlot>(createSlot('web', noop));
+  expectType<ConsoleSlot>(createSlot('console', noop));
+  expectType<MixedSlot>(createSlot('mixed', noop));
 });
 
 describe('slot context and next', () => {
@@ -24,17 +24,17 @@ describe('slot context and next', () => {
     expectType<Next>(next);
   });
 
-  createSlot((ctx, next) => {
+  createSlot('console', (ctx, next) => {
     expectType<ConsoleCtx>(ctx);
     expectType<Next>(next);
-  }, 'console');
+  });
 
-  createSlot((ctx, next) => {
+  createSlot('mixed', (ctx, next) => {
     expectType<TypeEqual<WebCtx, typeof ctx>>(false);
     expectType<TypeEqual<ConsoleCtx, typeof ctx>>(false);
     expectType<TypeEqual<WebCtx | ConsoleCtx, typeof ctx>>(true);
     expectType<Next>(next);
-  }, 'mixed');
+  });
 });
 
 describe('web slot with generic', () => {
@@ -52,11 +52,14 @@ describe('web slot with generic', () => {
 });
 
 describe('console slot with generic', () => {
-  const slot = createSlot<{ readonly test: number; test1: string }>((ctx) => {
-    expectType<
-      TypeEqual<ConsoleCtx<{ test: number; test1: string }>, typeof ctx>
-    >(true);
-  }, 'console');
+  const slot = createSlot<{ readonly test: number; test1: string }>(
+    'console',
+    (ctx) => {
+      expectType<
+        TypeEqual<ConsoleCtx<{ test: number; test1: string }>, typeof ctx>
+      >(true);
+    },
+  );
   expectType<
     TypeEqual<ConsoleSlot<{ test: number; test1: string }>, typeof slot>
   >(false);
@@ -69,15 +72,18 @@ describe('console slot with generic', () => {
 });
 
 describe('mixed slot with generic', () => {
-  const slot = createSlot<{ readonly test: number; test1: string }>((ctx) => {
-    expectType<
-      TypeEqual<
-        | ConsoleCtx<{ test: number; test1: string }>
-        | WebCtx<{ test: number; test1: string }>,
-        typeof ctx
-      >
-    >(true);
-  }, 'mixed');
+  const slot = createSlot<{ readonly test: number; test1: string }>(
+    'mixed',
+    (ctx) => {
+      expectType<
+        TypeEqual<
+          | ConsoleCtx<{ test: number; test1: string }>
+          | WebCtx<{ test: number; test1: string }>,
+          typeof ctx
+        >
+      >(true);
+    },
+  );
   expectType<
     TypeEqual<MixedSlot<{ test: number; test1: string }>, typeof slot>
   >(false);
@@ -93,9 +99,11 @@ describe('invalid usage', () => {
   // @ts-expect-error
   createSlot('web');
   // @ts-expect-error
-  createSlot(noop, '');
+  createSlot('', noop);
   // @ts-expect-error
-  createSlot(noop, 'web1');
+  createSlot('web1', noop);
+  // @ts-expect-error
+  createSlot(noop, 'web');
   // @ts-expect-error
   createSlot('', noop);
 });

@@ -285,11 +285,11 @@ describe('console commander', () => {
       v1: string,
       v2: string,
     ): ConsoleSlot<T> => {
-      return createSlot<T>(async (_, next) => {
+      return createSlot<T>('console', async (_, next) => {
         data += v1;
         await next();
         data += v2;
-      }, 'console');
+      });
     };
 
     const updateRouter = (commander: Commander) => {

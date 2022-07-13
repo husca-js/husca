@@ -87,8 +87,8 @@ test('composed slot in middleware', async () => {
   const slots = [
     createSlot(fn1),
     createSlot(fn2),
-    composeToSlot([createSlot(fn3, 'mixed'), createSlot(fn4, 'console')]),
-    createSlot(fn5, 'mixed'),
+    composeToSlot([createSlot('mixed', fn3), createSlot('console', fn4)]),
+    createSlot('mixed', fn5),
   ];
 
   await composeToMiddleware(slots)({}, fn6);

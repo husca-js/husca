@@ -27,7 +27,7 @@ describe('router generic', () => {
 
   const commander = new Commander({
     groupSlots: manageSlots('console').load<{ readonly hello: 'world' }>(
-      createSlot(noop, 'console'),
+      createSlot('console', noop),
     ),
   });
   expectType<

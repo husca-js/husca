@@ -29,7 +29,7 @@ export abstract class Builder<Props extends object = object> {
    * 3. Router中增加了参数`throwIfMethodMismatch`，为了防止误判，匹配到路由之后就不能再匹配其它路由了
    */
   action(fn: (ctx: any) => Promise<any> | any): void {
-    const slot = createSlot((ctx, _next) => fn(ctx), this.getTarget());
+    const slot = createSlot(this.getTarget(), (ctx, _next) => fn(ctx));
     this.slots.push(slot);
   }
 

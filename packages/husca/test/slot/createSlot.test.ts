@@ -4,9 +4,9 @@ import { noop } from '../helpers/noop';
 
 test('slot instance', () => {
   expect(createSlot(noop)).toBeInstanceOf(WebSlot);
-  expect(createSlot(noop, 'web')).toBeInstanceOf(WebSlot);
-  expect(createSlot(noop, 'console')).toBeInstanceOf(ConsoleSlot);
-  expect(createSlot(noop, 'mixed')).toBeInstanceOf(MixedSlot);
+  expect(createSlot('web', noop)).toBeInstanceOf(WebSlot);
+  expect(createSlot('console', noop)).toBeInstanceOf(ConsoleSlot);
+  expect(createSlot('mixed', noop)).toBeInstanceOf(MixedSlot);
 });
 
 test('generate unique ID', () => {

@@ -18,9 +18,9 @@ test('manager instance', () => {
 
 test('manage slots', () => {
   for (const key of SlotTarget) {
-    const slot1 = createSlot<{ a: string }>(noop, key);
-    const slot2 = createSlot<{ b: number }>(noop, key);
-    const slot3 = createSlot<{ c: object }>(noop, 'mixed');
+    const slot1 = createSlot<{ a: string }>(key, noop);
+    const slot2 = createSlot<{ b: number }>(key, noop);
+    const slot3 = createSlot<{ c: object }>('mixed', noop);
     const slots = manageSlots(key).load(slot1).load(slot2).load(slot3);
     expect(SlotManager.flatten(slots)).toHaveLength(3);
   }
@@ -34,9 +34,9 @@ test('manager in manager', () => {
       .load(manageSlots(key).load(createSlot(noop)))
       .load(
         manageSlots('mixed')
-          .load(createSlot(noop, 'mixed'))
-          .load(createSlot(noop, 'mixed'))
-          .load(createSlot(noop, 'mixed')),
+          .load(createSlot('mixed', noop))
+          .load(createSlot('mixed', noop))
+          .load(createSlot('mixed', noop)),
       );
     expect(SlotManager.flatten(slots)).toHaveLength(4);
   }
@@ -51,7 +51,7 @@ test('manage null slot', () => {
       .load(
         manageSlots('mixed')
           .load(null)
-          .load(createSlot(noop, 'mixed'))
+          .load(createSlot('mixed', noop))
           .load(null),
       );
     expect(SlotManager.flatten(slots)).toHaveLength(2);

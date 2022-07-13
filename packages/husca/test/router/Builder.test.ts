@@ -8,6 +8,7 @@ import {
   WebSlot,
 } from '../../src';
 import { Builder, CommanderBuilder, RouterBuilder } from '../../src/router';
+import { noop } from '../helpers/noop';
 
 describe('web router builder', () => {
   test('load slot', () => {
@@ -15,14 +16,14 @@ describe('web router builder', () => {
 
     expect(Builder.getSlots(builder)).toHaveLength(0);
     builder
-      .load(createSlot(() => {})) // 1
-      .load(createSlot(() => {}, 'mixed')) // 2
+      .load(createSlot(noop)) // 1
+      .load(createSlot('mixed', noop)) // 2
       .load(manageSlots('mixed'))
-      .load(manageSlots().load(createSlot(() => {}))) // 3
+      .load(manageSlots().load(createSlot(noop))) // 3
       // @ts-expect-error
       .load(manageSlots('console'))
       // @ts-expect-error
-      .load(createSlot(() => {}, 'console')); // 4
+      .load(createSlot('console', noop)); // 4
     expect(Builder.getSlots(builder)).toHaveLength(4);
   });
 
@@ -30,10 +31,7 @@ describe('web router builder', () => {
     const builder = new RouterBuilder('/', [], []);
     const action = (_ctx: WebCtx) => {};
 
-    builder
-      .load(createSlot(() => {}))
-      .load(createSlot(() => {}))
-      .action(action);
+    builder.load(createSlot(noop)).load(createSlot(noop)).action(action);
 
     const slots = Builder.getSlots(builder);
     const actionSlot = slots[2]!;
@@ -136,7 +134,7 @@ describe('web router builder', () => {
   test('action has no next parameter', () => {
     const builder = new RouterBuilder('/', [], []);
 
-    builder.action(() => {});
+    builder.action(noop);
     builder.action((_ctx) => {});
     // @ts-expect-error
     builder.action((_ctx, _next) => {});
@@ -159,7 +157,7 @@ describe('web router builder', () => {
   });
 
   test('action stop chain', () => {
-    expect(new RouterBuilder('', [], []).action(() => {})).toBeUndefined();
+    expect(new RouterBuilder('', [], []).action(noop)).toBeUndefined();
   });
 });
 
@@ -169,14 +167,14 @@ describe('console commander builder', () => {
 
     expect(Builder.getSlots(builder)).toHaveLength(0);
     builder
-      .load(createSlot(() => {}, 'console')) // 1
-      .load(createSlot(() => {}, 'mixed')) // 2
+      .load(createSlot('console', noop)) // 1
+      .load(createSlot('mixed', noop)) // 2
       .load(manageSlots('mixed'))
-      .load(manageSlots('console').load(createSlot(() => {}, 'console'))) // 3
+      .load(manageSlots('console').load(createSlot('console', noop))) // 3
       // @ts-expect-error
       .load(manageSlots())
       // @ts-expect-error
-      .load(createSlot(() => {})); // 4
+      .load(createSlot(noop)); // 4
     expect(Builder.getSlots(builder)).toHaveLength(4);
   });
 
@@ -185,9 +183,8 @@ describe('console commander builder', () => {
     const action = (_ctx: ConsoleCtx) => {};
 
     builder
-      .load(createSlot(() => {}, 'console'))
-
-      .load(createSlot(() => {}, 'console'))
+      .load(createSlot('console', noop))
+      .load(createSlot('console', noop))
       .action(action);
 
     const slots = Builder.getSlots(builder);
@@ -214,13 +211,13 @@ describe('console commander builder', () => {
   test('action has no next parameter', () => {
     const builder = new CommanderBuilder('/', []);
 
-    builder.action(() => {});
+    builder.action(noop);
     builder.action((_ctx) => {});
     // @ts-expect-error
     builder.action((_ctx, _next) => {});
   });
 
   test('action stop chain', () => {
-    expect(new CommanderBuilder('', []).action(() => {})).toBeUndefined();
+    expect(new CommanderBuilder('', []).action(noop)).toBeUndefined();
   });
 });

@@ -26,7 +26,7 @@ describe('slot instance', () => {
 describe('web slot manager generic', () => {
   const slots = manageSlots()
     .load(manageSlots().load(createSlot<{ readonly x: number }>(noop)))
-    .load(createSlot<{ y: number; z: number }>(noop, 'mixed'));
+    .load(createSlot<{ y: number; z: number }>('mixed', noop));
 
   expectType<
     TypeEqual<
@@ -46,10 +46,10 @@ describe('console slot manager generic', () => {
   const slots = manageSlots('console')
     .load(
       manageSlots('console').load(
-        createSlot<{ readonly x: number }>(noop, 'console'),
+        createSlot<{ readonly x: number }>('console', noop),
       ),
     )
-    .load(createSlot<{ y: number; z: number }>(noop, 'mixed'));
+    .load(createSlot<{ y: number; z: number }>('mixed', noop));
 
   expectType<
     TypeEqual<
@@ -69,10 +69,10 @@ describe('mixed slot manager generic', () => {
   const slots = manageSlots('mixed')
     .load(
       manageSlots('mixed').load(
-        createSlot<{ readonly x: number }>(noop, 'mixed'),
+        createSlot<{ readonly x: number }>('mixed', noop),
       ),
     )
-    .load(createSlot<{ y: number; z: number }>(noop, 'mixed'));
+    .load(createSlot<{ y: number; z: number }>('mixed', noop));
 
   expectType<
     TypeEqual<
@@ -91,32 +91,32 @@ describe('mixed slot manager generic', () => {
 describe('incompact', () => {
   manageSlots().load(manageSlots('web'));
   manageSlots().load(manageSlots('mixed'));
-  manageSlots().load(createSlot(noop, 'web'));
-  manageSlots().load(createSlot(noop, 'mixed'));
+  manageSlots().load(createSlot('web', noop));
+  manageSlots().load(createSlot('mixed', noop));
   // @ts-expect-error
-  manageSlots().load(createSlot(noop, 'console'));
+  manageSlots().load(createSlot('console', noop));
   // @ts-expect-error
   manageSlots().load(manageSlots('console'));
 
   manageSlots('console').load(manageSlots('console'));
   manageSlots('console').load(manageSlots('mixed'));
-  manageSlots('console').load(createSlot(noop, 'console'));
-  manageSlots('console').load(createSlot(noop, 'mixed'));
+  manageSlots('console').load(createSlot('console', noop));
+  manageSlots('console').load(createSlot('mixed', noop));
   // @ts-expect-error
-  manageSlots('console').load(createSlot(noop, 'web'));
+  manageSlots('console').load(createSlot('web', noop));
   // @ts-expect-error
   manageSlots('console').load(manageSlots());
 
   manageSlots('mixed').load(manageSlots('mixed'));
-  manageSlots('mixed').load(createSlot(noop, 'mixed'));
+  manageSlots('mixed').load(createSlot('mixed', noop));
   // @ts-expect-error
   manageSlots('mixed').load(manageSlots('console'));
   // @ts-expect-error
   manageSlots('mixed').load(manageSlots());
   // @ts-expect-error
-  manageSlots('mixed').load(createSlot(noop, 'console'));
+  manageSlots('mixed').load(createSlot('console', noop));
   // @ts-expect-error
-  manageSlots('mixed').load(createSlot(noop, 'web'));
+  manageSlots('mixed').load(createSlot('web', noop));
 });
 
 describe('load empty slot', () => {
