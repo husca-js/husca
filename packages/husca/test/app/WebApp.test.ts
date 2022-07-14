@@ -12,7 +12,6 @@ import {
 
 test('listen server', async () => {
   const app = new WebApp({
-    routers: [],
     globalSlots: manageSlots().load(
       createSlot((ctx) => {
         ctx.send(201, 'hello world');
@@ -27,7 +26,6 @@ test('listen server', async () => {
 
 test('customize req and res', async () => {
   const app = new WebApp({
-    routers: [],
     globalSlots: manageSlots().load(
       createSlot((ctx) => {
         expect(ctx.request).toBeInstanceOf(WebRequest);
@@ -41,7 +39,6 @@ test('customize req and res', async () => {
 
 test('default respond 404', async () => {
   const app = new WebApp({
-    routers: [],
     globalSlots: manageSlots().load(createSlot(() => {})),
   });
 
@@ -50,7 +47,6 @@ test('default respond 404', async () => {
 
 test('execute middleware', async () => {
   const app = new WebApp({
-    routers: [],
     globalSlots: manageSlots()
       .load(
         createSlot<{ data: string }>(async (ctx, next) => {
@@ -74,9 +70,7 @@ test('execute middleware', async () => {
 
 describe('log', () => {
   test('throw TypeError for non error', () => {
-    const app = new WebApp({
-      routers: [],
-    });
+    const app = new WebApp({});
 
     // @ts-expect-error
     expect(() => app.log(null)).toThrowError(TypeError);
@@ -84,7 +78,6 @@ describe('log', () => {
 
   test('no stderr when setting silent', () => {
     const app = new WebApp({
-      routers: [],
       silent: true,
     });
 
@@ -95,9 +88,7 @@ describe('log', () => {
   });
 
   test('no stderr when statusCode<=500', () => {
-    const app = new WebApp({
-      routers: [],
-    });
+    const app = new WebApp({});
 
     const spy = vitest.spyOn(console, 'error');
     app.log(createHttpError(400, 'msg'));
@@ -106,9 +97,7 @@ describe('log', () => {
   });
 
   test('no stderr when setting err.status===404', () => {
-    const app = new WebApp({
-      routers: [],
-    });
+    const app = new WebApp({});
 
     const spy = vitest.spyOn(console, 'error');
     app.log(createHttpError(404, 'msg'));
@@ -117,9 +106,7 @@ describe('log', () => {
   });
 
   test('report error message', () => {
-    const app = new WebApp({
-      routers: [],
-    });
+    const app = new WebApp({});
     const spy = vitest.spyOn(console, 'error').mockImplementation(() => {});
     app.log(createHttpError(500, 'msg'));
     expect(spy).toHaveBeenCalledTimes(1);

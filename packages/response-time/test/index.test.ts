@@ -5,7 +5,6 @@ import { responseTime } from '../src';
 
 test('hrtime: false', () => {
   const app = new WebApp({
-    routers: [],
     globalSlots: manageSlots().load(
       responseTime({
         hrtime: false,
@@ -21,7 +20,6 @@ test('hrtime: false', () => {
 
 test('hrtime: true', () => {
   const app = new WebApp({
-    routers: [],
     globalSlots: manageSlots().load(responseTime()),
   });
 

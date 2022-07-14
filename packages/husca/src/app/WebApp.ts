@@ -15,7 +15,7 @@ import { WebSlotManager } from '../slot';
 import { composeToMiddleware } from '../utils/compose';
 
 export interface WebAppOptions {
-  readonly routers: string[];
+  readonly routers?: string[];
   readonly proxy?: boolean | string;
   readonly globalSlots?: WebSlotManager;
   readonly querystring?: qs.IParseOptions;
@@ -29,7 +29,10 @@ export class WebApp extends App {
   public readonly cookieOptions?: cookies.Option;
 
   constructor(options: WebAppOptions) {
-    super({ globSlots: options.globalSlots, paths: options.routers });
+    super({
+      globSlots: options.globalSlots,
+      paths: options.routers || [],
+    });
 
     this.silent = options.silent ?? this.silent;
     this.qsParseOptions = options.querystring;

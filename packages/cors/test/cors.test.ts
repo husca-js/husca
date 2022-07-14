@@ -16,7 +16,7 @@ const createApp = (
 ) => {
   return new WebApp({
     silent: true,
-    routers: [],
+
     globalSlots: manageSlots()
       .load(prevSlotManager || null)
       .load(cors(options))
@@ -95,7 +95,6 @@ describe('options.origin=*', function () {
 
 describe('options.secureContext=true', function () {
   const app = new WebApp({
-    routers: [],
     globalSlots: manageSlots()
       .load(
         cors({

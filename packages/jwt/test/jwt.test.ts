@@ -18,7 +18,6 @@ const createApp = (
   unless?: WebUnlessOptions,
 ) => {
   const app = new WebApp({
-    routers: [],
     globalSlots: manageSlots()
       .load(prevSlotManager || null)
       .load(unless ? jwt(options).unless(unless) : jwt(options))

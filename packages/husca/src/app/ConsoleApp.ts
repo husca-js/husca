@@ -10,7 +10,7 @@ import { ConsoleRequest } from './ConsoleRequest';
 import { ConsoleResponse } from './ConsoleResponse';
 
 export interface ConsoleAppOptions {
-  readonly commanders: string[];
+  readonly commanders?: string[];
   argv?: () => string[];
   readonly globalSlots?: ConsoleSlotManager;
 }
@@ -19,7 +19,10 @@ export class ConsoleApp extends App {
   protected readonly getArgv: () => string[];
 
   constructor(options: ConsoleAppOptions) {
-    super({ globSlots: options.globalSlots, paths: options.commanders });
+    super({
+      globSlots: options.globalSlots,
+      paths: options.commanders || [],
+    });
     this.getArgv = options.argv || (() => process.argv.slice(2));
   }
 

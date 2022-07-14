@@ -184,7 +184,6 @@ function runWebTests(testName: string, scenarios: Secnarios[]) {
 
       test(`should ${acceptDeny} access to ${scenario.testSample} when configured with: ${config}`, async () => {
         let app = new WebApp({
-          routers: [],
           globalSlots: manageSlots().load(testSlot.unless(config)),
         });
 

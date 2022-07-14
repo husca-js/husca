@@ -21,7 +21,6 @@ const sendBuffer = createSlot((ctx) => {
 
 test('should compress strings', async () => {
   const app = new WebApp({
-    routers: [],
     globalSlots: manageSlots().load(compress()).load(sendString),
   });
 
@@ -38,7 +37,6 @@ test('should compress strings', async () => {
 
 test('should not compress strings below threshold', async () => {
   const app = new WebApp({
-    routers: [],
     globalSlots: manageSlots()
       .load(
         compress({
@@ -62,7 +60,6 @@ test('should not compress strings below threshold', async () => {
 
 test('should compress JSON body', async () => {
   const app = new WebApp({
-    routers: [],
     globalSlots: manageSlots()
       .load(compress())
       .load(
@@ -86,7 +83,6 @@ test('should compress JSON body', async () => {
 
 test('should not compress JSON body below threshold', async () => {
   const app = new WebApp({
-    routers: [],
     globalSlots: manageSlots()
       .load(compress())
       .load(
@@ -110,7 +106,6 @@ test('should not compress JSON body below threshold', async () => {
 
 test('should compress buffers', async () => {
   const app = new WebApp({
-    routers: [],
     globalSlots: manageSlots().load(compress()).load(sendBuffer),
   });
 
@@ -126,7 +121,6 @@ test('should compress buffers', async () => {
 
 test('should compress streams', async () => {
   const app = new WebApp({
-    routers: [],
     globalSlots: manageSlots()
       .load(compress())
       .load(
@@ -149,7 +143,6 @@ test('should compress streams', async () => {
 
 test('should compress when ctx.compress === true', async () => {
   const app = new WebApp({
-    routers: [],
     globalSlots: manageSlots().load(compress()).load(sendBuffer),
   });
 
@@ -165,7 +158,6 @@ test('should compress when ctx.compress === true', async () => {
 
 test('should not compress when ctx.compress === false', async () => {
   const app = new WebApp({
-    routers: [],
     globalSlots: manageSlots()
       .load(compress())
       .load(
@@ -190,7 +182,6 @@ test('should not compress when ctx.compress === false', async () => {
 
 test('should not compress HEAD requests', async () => {
   const app = new WebApp({
-    routers: [],
     globalSlots: manageSlots().load(compress()).load(sendString),
   });
 
@@ -203,7 +194,6 @@ test('should not compress HEAD requests', async () => {
 
 test('should not crash even if accept-encoding: sdch', () => {
   const app = new WebApp({
-    routers: [],
     globalSlots: manageSlots().load(compress()).load(sendBuffer),
   });
 
@@ -215,7 +205,6 @@ test('should not crash even if accept-encoding: sdch', () => {
 
 test('should not compress if no accept-encoding is sent (with the default)', async () => {
   const app = new WebApp({
-    routers: [],
     globalSlots: manageSlots()
       .load(
         compress({
@@ -243,7 +232,6 @@ test('should not compress if no accept-encoding is sent (with the default)', asy
 
 test('should be gzip if no accept-encoding is sent (with the standard default)', async () => {
   const app = new WebApp({
-    routers: [],
     globalSlots: manageSlots()
       .load(
         compress({
@@ -268,7 +256,6 @@ test('should be gzip if no accept-encoding is sent (with the standard default)',
 
 test('should not crash if a type does not pass the filter', () => {
   const app = new WebApp({
-    routers: [],
     globalSlots: manageSlots()
       .load(compress())
       .load(
@@ -284,7 +271,6 @@ test('should not crash if a type does not pass the filter', () => {
 
 test('should not compress when transfer-encoding is already set', () => {
   const app = new WebApp({
-    routers: [],
     globalSlots: manageSlots()
       .load(
         compress({
@@ -313,7 +299,6 @@ describe('Cache-Control', () => {
   ].forEach((headerValue) => {
     test(`should skip Cache-Control: ${headerValue}`, async () => {
       const app = new WebApp({
-        routers: [],
         globalSlots: manageSlots()
           .load(compress())
           .load(
@@ -342,7 +327,6 @@ describe('Cache-Control', () => {
     (headerValue) => {
       test(`should not skip Cache-Control: ${headerValue}`, async () => {
         const app = new WebApp({
-          routers: [],
           globalSlots: manageSlots()
             .load(compress())
             .load(
@@ -370,7 +354,6 @@ describe('Cache-Control', () => {
 
 test('accept-encoding: deflate', async () => {
   const app = new WebApp({
-    routers: [],
     globalSlots: manageSlots().load(compress()).load(sendBuffer),
   });
 
@@ -384,7 +367,6 @@ test('accept-encoding: deflate', async () => {
 
 test('accept-encoding: gzip', async () => {
   const app = new WebApp({
-    routers: [],
     globalSlots: manageSlots().load(compress()).load(sendBuffer),
   });
 
@@ -399,7 +381,6 @@ test('accept-encoding: gzip', async () => {
 if (process.versions.brotli) {
   test('accept-encoding: br', async () => {
     const app = new WebApp({
-      routers: [],
       globalSlots: manageSlots().load(compress()).load(sendBuffer),
     });
 
@@ -414,7 +395,6 @@ if (process.versions.brotli) {
 
 test('accept-encoding: br (banned, should be gzip)', async () => {
   const app = new WebApp({
-    routers: [],
     globalSlots: manageSlots()
       .load(compress({ br: false }))
       .load(sendBuffer),

@@ -96,7 +96,6 @@ test('set body with different type', () => {
 describe('cookies', () => {
   test('get cookie from request', async () => {
     const app = new WebApp({
-      routers: [],
       globalSlots: manageSlots().load(
         createSlot((ctx) => {
           ctx.send(String(ctx.cookies.get('x')));
