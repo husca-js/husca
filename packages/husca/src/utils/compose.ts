@@ -1,6 +1,5 @@
 import { createSlot } from '../slot/createSlot';
 import { MixedSlot, Slot } from '../slot/Slot';
-import { SlotTarget } from '../slot/SlotTarget';
 
 export type Next = () => Promise<any>;
 export type Middleware = (ctx: any, next?: Next) => Promise<any>;
@@ -33,5 +32,5 @@ export const composeToMiddleware = (slots: Slot[]): Middleware => {
 };
 
 export const composeToSlot = (slots: Slot[]): MixedSlot => {
-  return createSlot(SlotTarget[2], composeToMiddleware(slots));
+  return createSlot('mixed', composeToMiddleware(slots));
 };

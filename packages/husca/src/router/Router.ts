@@ -11,8 +11,8 @@ import {
   WebSlotFn,
   WebSlotCompat,
   ConsoleSlotCompat,
+  SlotTarget,
 } from '../slot';
-import { SlotTarget } from '../slot/SlotTarget';
 import { composeToMiddleware } from '../utils/compose';
 import { toArray } from '../utils/toArray';
 import {
@@ -46,7 +46,7 @@ export abstract class BaseRouter<Props extends object = object> {
   }
 
   protected abstract generateSlot(globalSlotID: string | false): Slot<Props>;
-  protected abstract getTarget(): typeof SlotTarget[number];
+  protected abstract getTarget(): SlotTarget;
 }
 
 export interface RouterOptions<Props extends object = object> {
@@ -189,7 +189,7 @@ export class Router<Props extends object = object> extends BaseRouter<Props> {
   }
 
   protected override getTarget() {
-    return SlotTarget[0];
+    return 'web' as const;
   }
 }
 
@@ -251,6 +251,6 @@ export class Commander<
   }
 
   protected override getTarget() {
-    return SlotTarget[1];
+    return 'console' as const;
   }
 }

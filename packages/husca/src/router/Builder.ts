@@ -1,6 +1,6 @@
 import { pathToRegexp, Key } from 'path-to-regexp';
-import { SlotTarget } from '../slot/SlotTarget';
 import {
+  SlotTarget,
   createSlot,
   Slot,
   SlotManager,
@@ -39,7 +39,7 @@ export abstract class Builder<Props extends object = object> {
     }
   }
 
-  protected abstract getTarget(): typeof SlotTarget[number];
+  protected abstract getTarget(): SlotTarget;
 }
 
 type PureUri = string | undefined;
@@ -147,8 +147,8 @@ export class RouterBuilder<
     }
   }
 
-  protected getTarget() {
-    return SlotTarget[0];
+  protected getTarget(): SlotTarget {
+    return 'web';
   }
 }
 
@@ -183,7 +183,7 @@ export class CommanderBuilder<
     return this.commands.includes(command);
   }
 
-  protected getTarget() {
-    return SlotTarget[1];
+  protected getTarget(): SlotTarget {
+    return 'console';
   }
 }

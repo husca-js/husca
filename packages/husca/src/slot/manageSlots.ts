@@ -4,19 +4,19 @@ import {
   SlotManager,
   WebSlotManager,
 } from './SlotManager';
-import { SlotTarget } from './SlotTarget';
+import { SlotTarget } from './types';
 
-export function manageSlots(target?: typeof SlotTarget[0]): WebSlotManager;
-export function manageSlots(target: typeof SlotTarget[1]): ConsoleSlotManager;
-export function manageSlots(target: typeof SlotTarget[2]): MixedSlotManager;
-export function manageSlots(target: typeof SlotTarget[number]): SlotManager;
-export function manageSlots(target: typeof SlotTarget[number] = SlotTarget[0]) {
+export function manageSlots(target?: 'web'): WebSlotManager;
+export function manageSlots(target: 'console'): ConsoleSlotManager;
+export function manageSlots(target: 'mixed'): MixedSlotManager;
+export function manageSlots(target: SlotTarget): SlotManager;
+export function manageSlots(target: SlotTarget = 'web') {
   switch (target) {
-    case SlotTarget[0]:
+    case 'web':
       return new WebSlotManager([]);
-    case SlotTarget[1]:
+    case 'console':
       return new ConsoleSlotManager([]);
-    case SlotTarget[2]:
+    case 'mixed':
       return new MixedSlotManager([]);
     default:
       const guard: never = target;

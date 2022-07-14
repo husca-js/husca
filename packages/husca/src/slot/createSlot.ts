@@ -1,10 +1,10 @@
 import { ConsoleSlot, MixedSlot, Slot, WebSlot } from './Slot';
-import { SlotTarget } from './SlotTarget';
 import type {
   ConsoleSlotFn,
   MixedSlotFn,
   NonReadonly,
   WebSlotFn,
+  SlotTarget,
 } from './types';
 
 export function createSlot<Props extends object>(
@@ -12,40 +12,40 @@ export function createSlot<Props extends object>(
 ): WebSlot<Props>;
 
 export function createSlot<Props extends object>(
-  target: typeof SlotTarget[0],
+  target: 'web',
   fn: WebSlotFn<NonReadonly<Props>>,
 ): WebSlot<Props>;
 
 export function createSlot<Props extends object>(
-  target: typeof SlotTarget[1],
+  target: 'console',
   fn: ConsoleSlotFn<NonReadonly<Props>>,
 ): ConsoleSlot<Props>;
 
 export function createSlot<Props extends object>(
-  target: typeof SlotTarget[2],
+  target: 'mixed',
   fn: MixedSlotFn<NonReadonly<Props>>,
 ): MixedSlot<Props>;
 
 export function createSlot<Props extends object>(
-  target: typeof SlotTarget[number],
+  target: SlotTarget,
   fn: MixedSlotFn<NonReadonly<Props>>,
 ): Slot<Props>;
 
 export function createSlot(
-  target: typeof SlotTarget[number] | ((...args: any[]) => any),
+  target: SlotTarget | ((...args: any[]) => any),
   fn?: (...args: any[]) => any,
 ) {
   if (typeof target === 'function') {
     fn = target;
-    target = SlotTarget[0];
+    target = 'web';
   }
 
   switch (target) {
-    case SlotTarget[0]:
+    case 'web':
       return new WebSlot(fn!);
-    case SlotTarget[1]:
+    case 'console':
       return new ConsoleSlot(fn!);
-    case SlotTarget[2]:
+    case 'mixed':
       return new MixedSlot(fn!);
     default:
       const guard: never = target;

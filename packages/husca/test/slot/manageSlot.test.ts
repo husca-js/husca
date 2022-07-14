@@ -6,8 +6,9 @@ import {
   ConsoleSlotManager,
   MixedSlotManager,
 } from '../../src/slot';
-import { SlotTarget } from '../../src/slot/SlotTarget';
 import { noop } from '../helpers/noop';
+
+const targets = <const>['web', 'console', 'mixed'];
 
 test('manager instance', () => {
   expect(manageSlots()).toBeInstanceOf(WebSlotManager);
@@ -17,7 +18,7 @@ test('manager instance', () => {
 });
 
 test('manage slots', () => {
-  for (const key of SlotTarget) {
+  for (const key of targets) {
     const slot1 = createSlot<{ a: string }>(key, noop);
     const slot2 = createSlot<{ b: number }>(key, noop);
     const slot3 = createSlot<{ c: object }>('mixed', noop);
@@ -27,7 +28,7 @@ test('manage slots', () => {
 });
 
 test('manager in manager', () => {
-  for (const key of SlotTarget) {
+  for (const key of targets) {
     const slots = manageSlots(key)
       .load(manageSlots(key))
       .load(manageSlots('mixed'))
@@ -43,7 +44,7 @@ test('manager in manager', () => {
 });
 
 test('manage null slot', () => {
-  for (const key of SlotTarget) {
+  for (const key of targets) {
     const slots = manageSlots(key)
       .load(null)
       .load(manageSlots('mixed'))

@@ -13,6 +13,8 @@ export type NonReadonly<T extends object> = {
   -readonly [K in keyof T]: T[K];
 };
 
+export type SlotTarget = 'web' | 'console' | 'mixed';
+
 export type GetSlotType<T extends Slot> = T extends Slot<infer R> ? R : never;
 
 export type BaseSlotCompat<Props extends object> =
