@@ -1,5 +1,4 @@
 import parser from 'yargs-parser';
-import { Document } from '../../document';
 import { validate, Validator, GetValidatorType } from '../../validators';
 import { ConsoleSlot } from '../Slot';
 
@@ -27,14 +26,6 @@ export class OptionsSlot<
           ctx.options = result;
         })
         .then(next);
-    });
-  }
-
-  public override toDocument(): Document {
-    return new Document({
-      key: 'options',
-      type: 'object',
-      properties: {},
     });
   }
 }

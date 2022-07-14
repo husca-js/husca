@@ -1,4 +1,3 @@
-import { Document } from '../../document';
 import {
   validate,
   Validator,
@@ -22,14 +21,6 @@ export class ParamsSlot<
           ctx.throw(e instanceof ValidatorError ? 400 : 500, e);
         })
         .then(next);
-    });
-  }
-
-  public override toDocument(): Document {
-    return new Document({
-      key: 'params',
-      type: 'object',
-      properties: {},
     });
   }
 }
