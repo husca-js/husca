@@ -5,6 +5,8 @@ import stream, { Stream } from 'node:stream';
 import assert from 'node:assert';
 import typeIs from 'type-is';
 import vary from 'vary';
+import encodeurl from 'encodeurl';
+import escapeHtml from 'escape-html';
 import destroy from 'destroy';
 import statuses from 'statuses';
 import contentDisposition from 'content-disposition';
@@ -12,6 +14,7 @@ import { getContentType } from '../utils/getContentType';
 import type { WebApp } from './WebApp';
 import createHttpError, { HttpError } from 'http-errors';
 import { WebContext } from './WebContext';
+import { WebRequest } from './WebRequest';
 
 export type Body = string | object | Stream | Buffer | null;
 
@@ -23,8 +26,24 @@ export class WebResponse extends ServerResponse {
   protected explicitStatus: boolean = false;
   protected explicitNullBody: boolean = false;
 
+  declare req: WebRequest;
+
   vary(field: string) {
     vary(this, field);
+  }
+
+  redirect(status: 300 | 301 | 302 | 303 | 305 | 307 | 308, url: string) {
+    this.status = status;
+    this.setHeader('Location', encodeurl(url));
+
+    if (this.req.accept.types('html')) {
+      url = escapeHtml(url);
+      this.contentType = 'html';
+      this.body = `Redirecting to <a href="${url}">${url}</a>.`;
+    } else {
+      this.contentType = 'text';
+      this.body = `Redirecting to ${url}.`;
+    }
   }
 
   get bodyType() {
