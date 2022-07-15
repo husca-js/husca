@@ -1,6 +1,6 @@
 {
   "name": "@husca/static",
-  "version": "0.0.17",
+  "version": "0.0.18",
   "description": "静态文件中间件",
   "keywords": [
     "static-file-serve",
@@ -46,7 +46,7 @@
     "resolve-path": "^1.4.0"
   },
   "devDependencies": {
-    "@husca/husca": "^0.0.17",
+    "@husca/husca": "^0.0.18",
     "@types/node": "^18.0.3",
     "@types/resolve-path": "^1.4.0",
     "@types/supertest": "^2.0.12",

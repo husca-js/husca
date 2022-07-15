@@ -1,6 +1,6 @@
 {
   "name": "@husca/response-time",
-  "version": "0.0.17",
+  "version": "0.0.18",
   "description": "header设置响应时间中间件",
   "keywords": [
     "response-time"
@@ -42,7 +42,7 @@
     "@husca/husca": "^0.x"
   },
   "devDependencies": {
-    "@husca/husca": "^0.0.17",
+    "@husca/husca": "^0.0.18",
     "@types/node": "^18.0.3",
     "@types/supertest": "^2.0.12",
     "c8": "^7.11.3",

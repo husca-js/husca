@@ -1,6 +1,6 @@
 {
   "name": "@husca/jwt",
-  "version": "0.0.17",
+  "version": "0.0.18",
   "description": "json token中间件",
   "keywords": [
     "jwt",
@@ -47,7 +47,7 @@
     "jsonwebtoken": "^8.5.1"
   },
   "devDependencies": {
-    "@husca/husca": "^0.0.17",
+    "@husca/husca": "^0.0.18",
     "@types/node": "^18.0.3",
     "@types/supertest": "^2.0.12",
     "c8": "^7.11.3",
