@@ -1,7 +1,9 @@
 import mimeTypes from 'mime-types';
-import LRU from 'ylru';
+import LRU from 'lru-cache';
 
-const cache = new LRU(100);
+const cache = new LRU<string, string | false>({
+  max: 100,
+});
 
 export const getContentType = (type: string): string | false => {
   let mimeType: string | false | undefined = cache.get(type);
