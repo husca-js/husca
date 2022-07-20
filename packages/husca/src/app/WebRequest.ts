@@ -38,6 +38,23 @@ export class WebRequest extends IncomingMessage {
     return (parseurl(this)!.query as string) || '';
   }
 
+  get ips(): string[] {
+    const proxy = this.app.proxy;
+
+    if (!proxy) return [];
+
+    const val = this.headers[proxy];
+    let ips = val ? val.toString().split(/\s*,\s*/) : [];
+    if (this.app.maxIpsCount > 0) {
+      ips = ips.slice(-this.app.maxIpsCount);
+    }
+    return ips;
+  }
+
+  get ip(): string {
+    return this.ips[0] || this.socket.remoteAddress || '';
+  }
+
   public get body(): unknown {
     if (this._body !== undefined) return this._body;
 

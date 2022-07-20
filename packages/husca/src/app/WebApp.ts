@@ -17,6 +17,7 @@ import { composeToMiddleware } from '../utils/compose';
 export interface WebAppOptions {
   readonly routers?: string[];
   readonly proxy?: boolean | string;
+  readonly maxIpsCount?: number;
   readonly globalSlots?: WebSlotManager;
   readonly querystring?: qs.IParseOptions;
   readonly cookies?: cookies.Option;
@@ -27,6 +28,7 @@ export class WebApp extends App {
   public readonly proxy: false | string;
   public readonly qsParseOptions?: qs.IParseOptions;
   public readonly cookieOptions?: cookies.Option;
+  public readonly maxIpsCount: number;
 
   constructor(options: WebAppOptions) {
     super({
@@ -37,6 +39,7 @@ export class WebApp extends App {
     this.silent = options.silent ?? this.silent;
     this.qsParseOptions = options.querystring;
     this.cookieOptions = options.cookies;
+    this.maxIpsCount = options.maxIpsCount || 0;
 
     switch (options.proxy) {
       case true:
