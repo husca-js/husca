@@ -4,7 +4,7 @@ import sleep from 'sleep-promise';
 import { FileCache } from '../../src/caching/FileCache';
 import { rm } from 'fs/promises';
 import path, { join } from 'path';
-import { BaseCache, composeToMiddleware, MixedSlot } from '../../src';
+import { composeToMiddleware, MixedSlot } from '../../src';
 import { createHash } from 'crypto';
 import { glob } from 'glob';
 import { promisify } from 'util';
@@ -141,7 +141,7 @@ describe('common', () => {
     expect(cache.toSlot()).toBeInstanceOf(MixedSlot);
     const ctx: Record<string, any> = {};
     await composeToMiddleware([cache.toSlot()])(ctx);
-    expect(ctx['cache']).toBeInstanceOf(BaseCache);
+    expect(ctx['cache']).toBeInstanceOf(FileCache);
   });
 });
 

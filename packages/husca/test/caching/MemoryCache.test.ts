@@ -1,11 +1,6 @@
 import { afterEach, describe, expect, test } from 'vitest';
 import sleep from 'sleep-promise';
-import {
-  BaseCache,
-  composeToMiddleware,
-  MemoryCache,
-  MixedSlot,
-} from '../../src';
+import { composeToMiddleware, MemoryCache, MixedSlot } from '../../src';
 import { createHash } from 'crypto';
 
 describe('common', () => {
@@ -130,7 +125,7 @@ describe('common', () => {
     expect(cache.toSlot()).toBeInstanceOf(MixedSlot);
     const ctx: Record<string, any> = {};
     await composeToMiddleware([cache.toSlot()])(ctx);
-    expect(ctx['cache']).toBeInstanceOf(BaseCache);
+    expect(ctx['cache']).toBeInstanceOf(MemoryCache);
   });
 });
 
