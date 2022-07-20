@@ -112,10 +112,7 @@ export abstract class BaseCache {
       : this.setValue(key, value, duration);
   }
 
-  protected async existsKey(key: string): Promise<boolean> {
-    return (await this.getValue(key)) !== null;
-  }
-
+  protected abstract existsKey(key: string): Promise<boolean>;
   protected abstract getValue(key: string): Promise<string | null>;
   protected abstract setValue(
     key: string,

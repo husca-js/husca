@@ -46,17 +46,27 @@ export class FileCache extends BaseCache {
     mkdirSync(this.dir, { recursive: true, mode: this.dirMode });
   }
 
+  protected async existsKey(key: string): Promise<boolean> {
+    const filePath = this.getFilePath(key);
+    return this.existsFile(filePath);
+  }
+
   protected async getValue(key: string): Promise<string | null> {
     const filePath = this.getFilePath(key);
 
-    try {
-      const stats = await stat(filePath);
-      if (!stats.isFile() || stats.mtimeMs <= Date.now()) return null;
-    } catch {
-      return null;
-    }
+    if (!(await this.existsFile(filePath))) return null;
 
     return readFile(filePath, 'utf8');
+  }
+
+  protected async existsFile(filePath: string): Promise<boolean> {
+    try {
+      const stats = await stat(filePath);
+      if (!stats.isFile() || stats.mtimeMs <= Date.now()) return false;
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   protected async setValue(
