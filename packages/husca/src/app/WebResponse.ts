@@ -28,6 +28,12 @@ export class WebResponse extends ServerResponse {
 
   declare req: WebRequest;
 
+  setHeaders(headers: object): void {
+    for (let [key, value] of Object.entries(headers)) {
+      this.setHeader(key, value);
+    }
+  }
+
   vary(field: string) {
     vary(this, field);
   }
