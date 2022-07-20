@@ -7,25 +7,28 @@ export interface MemoryCacheOptions extends BaseCacheOptions {
    */
   maxItems?: number;
   maxSize?: number;
+  gcProbability?: number;
 }
 
 export class MemoryCache extends BaseCache {
-  private readonly cache: LRU<string, string>;
+  private readonly lru: LRU<string, string>;
+  protected readonly gcProbability: number;
 
   constructor(options: MemoryCacheOptions = {}) {
     super(options);
-    this.cache = new LRU<string, string>({
+    this.gcProbability = (options.gcProbability ?? 10) / 100;
+    this.lru = new LRU<string, string>({
       max: Math.min(Math.pow(2, 32) - 1, options.maxItems ?? 1000),
       maxSize: options.maxSize,
     });
   }
 
   protected override async existsKey(key: string): Promise<boolean> {
-    return this.cache.has(key);
+    return this.lru.has(key);
   }
 
   protected async getValue(key: string): Promise<string | null> {
-    const data = this.cache.get(key);
+    const data = this.lru.get(key);
     return data === undefined ? null : data;
   }
 
@@ -34,18 +37,24 @@ export class MemoryCache extends BaseCache {
     value: string,
     duration?: number,
   ): Promise<boolean> {
-    this.cache.set(key, value, {
+    this.gc();
+    this.lru.set(key, value, {
       ttl: duration,
     });
     return true;
   }
 
   protected async deleteValue(key: string): Promise<boolean> {
-    return this.cache.delete(key);
+    return this.lru.delete(key);
   }
 
   protected async deleteAllValues(): Promise<boolean> {
-    this.cache.clear();
+    this.lru.clear();
     return true;
+  }
+
+  protected gc() {
+    if (Math.random() > this.gcProbability) return;
+    this.lru.purgeStale();
   }
 }

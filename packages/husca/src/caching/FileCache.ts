@@ -1,4 +1,6 @@
 import { constants, mkdirSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { promisify } from 'node:util';
 import path from 'node:path';
 import {
   rm,
@@ -10,7 +12,9 @@ import {
   utimes,
 } from 'node:fs/promises';
 import { BaseCache, BaseCacheOptions } from './BaseCache';
-import { createHash } from 'crypto';
+import glob from 'glob';
+
+const globPromise = promisify(glob);
 
 const notExists = async (filePath: string): Promise<boolean> => {
   try {
@@ -25,17 +29,20 @@ export interface FileCacheOptions extends BaseCacheOptions {
   cacheDir?: string;
   dirMode?: number;
   fileMode?: number;
+  gcProbability?: number;
 }
 
 export class FileCache extends BaseCache {
   protected readonly dir: string;
   protected readonly dirMode: number;
   protected readonly fileMode?: number;
+  protected readonly gcProbability: number;
 
   constructor(config: FileCacheOptions = {}) {
     super(config);
     this.dir = path.resolve(config.cacheDir || './.filecache');
     this.dirMode = config.dirMode || 0o755;
+    this.gcProbability = (config.gcProbability ?? 10) / 100;
     mkdirSync(this.dir, { recursive: true, mode: this.dirMode });
   }
 
@@ -57,7 +64,12 @@ export class FileCache extends BaseCache {
     value: string,
     duration?: number,
   ): Promise<boolean> {
+    await this.gc();
     const filePath = this.getFilePath(key);
+
+    if (duration === undefined || duration <= 0) {
+      duration = 3600 * 24 * 3650 * 1000;
+    }
 
     await mkdir(path.dirname(filePath), {
       recursive: true,
@@ -66,10 +78,6 @@ export class FileCache extends BaseCache {
     await writeFile(filePath, value, {
       mode: this.fileMode,
     });
-
-    if (duration === undefined || duration <= 0) {
-      duration = 3600 * 24 * 3650 * 1000;
-    }
     await utimes(filePath, new Date(), (Date.now() + duration) / 1000);
     return true;
   }
@@ -99,5 +107,24 @@ export class FileCache extends BaseCache {
       hashKey.substring(2, 4),
       hashKey,
     );
+  }
+
+  protected async gc() {
+    if (Math.random() > this.gcProbability) return;
+
+    const promises: Promise<void>[] = [];
+    const files = await globPromise(path.join(this.dir, '**/*'), {
+      nodir: true,
+    });
+
+    for (const file of files) {
+      if ((await stat(file)).mtimeMs <= Date.now()) {
+        promises.push(rm(file));
+      }
+    }
+
+    if (promises.length) {
+      await Promise.all(promises);
+    }
   }
 }

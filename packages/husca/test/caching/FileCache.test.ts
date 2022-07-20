@@ -6,6 +6,8 @@ import { rm } from 'fs/promises';
 import path, { join } from 'path';
 import { BaseCache, composeToMiddleware, MixedSlot } from '../../src';
 import { createHash } from 'crypto';
+import { glob } from 'glob';
+import { promisify } from 'util';
 
 describe('common', () => {
   let cache: FileCache;
@@ -144,12 +146,14 @@ describe('common', () => {
 });
 
 describe('special', () => {
+  let cache: FileCache;
+
   afterEach(async () => {
-    await new FileCache().deleteAll();
+    await cache.deleteAll();
   });
 
   test('fail to set key without dir X permission', async () => {
-    const cache = new FileCache({
+    cache = new FileCache({
       dirMode: 0o666,
     });
 
@@ -158,11 +162,48 @@ describe('special', () => {
 
   test('never throw even cacheDir was deleted', async () => {
     const cacheDir = path.resolve(tmpdir(), 'a', 'b', 'c');
-    const cache = new FileCache({
+    cache = new FileCache({
       cacheDir: cacheDir,
     });
 
     await rm(cacheDir, { recursive: true });
     await expect(cache.deleteAll()).resolves.toBeTruthy();
+  });
+
+  test('gc always', async () => {
+    const cacheDir = path.resolve(tmpdir(), 'a', 'b', 'c');
+    const pattern = path.join(cacheDir, '**/*');
+    cache = new FileCache({
+      cacheDir,
+      gcProbability: 100,
+    });
+    await cache.set('key a', 'value');
+    await cache.set('key b', 'value', 10);
+    await expect(
+      promisify(glob)(pattern, { nodir: true }),
+    ).resolves.toHaveLength(2);
+    await sleep(12);
+    await cache.set('key a', 'value');
+    await expect(
+      promisify(glob)(pattern, { nodir: true }),
+    ).resolves.toHaveLength(1);
+  });
+
+  test('gc never', async () => {
+    const cacheDir = path.resolve(tmpdir(), 'a', 'b', 'c');
+    const pattern = path.join(cacheDir, '**/*');
+    cache = new FileCache({
+      cacheDir,
+      gcProbability: 0,
+    });
+    await cache.set('key a', 'value');
+    await cache.set('key b', 'value', 10);
+    await sleep(12);
+    for (let i = 0; i < 20; ++i) {
+      await cache.set('key a', 'value');
+    }
+    await expect(
+      promisify(glob)(pattern, { nodir: true }),
+    ).resolves.toHaveLength(2);
   });
 });
