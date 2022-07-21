@@ -3,14 +3,14 @@ import Redis from 'ioredis';
 import { createHash } from 'crypto';
 import sleep from 'sleep-promise';
 import { afterEach, test, expect } from 'vitest';
-import { IORedisCache } from '../src';
+import { RedisCache } from '../src';
 
-const cache = new IORedisCache({
+const cache = new RedisCache({
   redis: new Redis({}),
 });
 
 afterEach(async () => {
-  await cache.deleteAll();
+  await cache.clear();
 });
 
 test('set and get', async () => {
@@ -100,13 +100,13 @@ test('delete unrelated key', async () => {
 test('delete all', async () => {
   await cache.set('my-key', 'my-value');
   await cache.set('next-key', 'my-value');
-  await cache.deleteAll();
+  await cache.clear();
   await expect(cache.get('my-key')).resolves.toBeNull();
   await expect(cache.get('next-key')).resolves.toBeNull();
 });
 
 test('delete empty keys', async () => {
-  await expect(cache.deleteAll()).resolves.toBeTruthy();
+  await expect(cache.clear()).resolves.toBeTruthy();
 });
 
 test('convert key to md5', async () => {
@@ -124,5 +124,5 @@ test('to mixed slot', async () => {
   expect(cache.toSlot()).toBeInstanceOf(MixedSlot);
   const ctx: Record<string, any> = {};
   await composeToMiddleware([cache.toSlot()])(ctx);
-  expect(ctx['cache']).toBeInstanceOf(IORedisCache);
+  expect(ctx['cache']).toBeInstanceOf(RedisCache);
 });

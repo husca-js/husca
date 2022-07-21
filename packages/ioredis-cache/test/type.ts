@@ -1,9 +1,9 @@
 import Redis from 'ioredis';
 import { expectType, TypeEqual } from 'ts-expect';
 import { describe } from 'vitest';
-import { IORedisCache } from '../src';
+import { RedisCache } from '../src';
 
-const cache = new IORedisCache({
+const cache = new RedisCache({
   redis: new Redis(),
 });
 

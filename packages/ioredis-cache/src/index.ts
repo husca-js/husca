@@ -1,14 +1,14 @@
 import { Redis } from 'ioredis';
 import { BaseCache, type BaseCacheOptions } from '@husca/husca';
 
-export interface IORedisCacheOptions extends BaseCacheOptions {
+export interface RedisCacheOptions extends BaseCacheOptions {
   redis: Redis;
 }
 
-export class IORedisCache extends BaseCache {
+export class RedisCache extends BaseCache {
   private readonly redis: Redis;
 
-  constructor(config: IORedisCacheOptions) {
+  constructor(config: RedisCacheOptions) {
     super(config);
     this.redis = config.redis;
   }
