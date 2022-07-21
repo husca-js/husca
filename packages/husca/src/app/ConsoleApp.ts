@@ -18,7 +18,7 @@ export interface ConsoleAppOptions {
 export class ConsoleApp extends App {
   protected readonly getArgv: () => string[];
 
-  constructor(options: ConsoleAppOptions) {
+  constructor(options: ConsoleAppOptions = {}) {
     super({
       globSlots: options.globalSlots,
       paths: options.commanders || [],

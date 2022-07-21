@@ -30,7 +30,7 @@ export class WebApp extends App {
   public readonly cookieOptions?: cookies.Option;
   public readonly maxIpsCount: number;
 
-  constructor(options: WebAppOptions) {
+  constructor(options: WebAppOptions = {}) {
     super({
       globSlots: options.globalSlots,
       paths: options.routers || [],

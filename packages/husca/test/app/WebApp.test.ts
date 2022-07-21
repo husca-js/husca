@@ -70,7 +70,7 @@ test('execute middleware', async () => {
 
 describe('log', () => {
   test('throw TypeError for non error', () => {
-    const app = new WebApp({});
+    const app = new WebApp();
 
     // @ts-expect-error
     expect(() => app.log(null)).toThrowError(TypeError);
@@ -88,7 +88,7 @@ describe('log', () => {
   });
 
   test('no stderr when statusCode<=500', () => {
-    const app = new WebApp({});
+    const app = new WebApp();
 
     const spy = vitest.spyOn(console, 'error');
     app.log(createHttpError(400, 'msg'));
@@ -97,7 +97,7 @@ describe('log', () => {
   });
 
   test('no stderr when setting err.status===404', () => {
-    const app = new WebApp({});
+    const app = new WebApp();
 
     const spy = vitest.spyOn(console, 'error');
     app.log(createHttpError(404, 'msg'));
@@ -106,7 +106,7 @@ describe('log', () => {
   });
 
   test('report error message', () => {
-    const app = new WebApp({});
+    const app = new WebApp();
     const spy = vitest.spyOn(console, 'error').mockImplementation(() => {});
     app.log(createHttpError(500, 'msg'));
     expect(spy).toHaveBeenCalledTimes(1);
