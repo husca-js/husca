@@ -102,14 +102,11 @@ export class WebApp extends App {
       const handleResponse = () => {
         return WebResponse.respondOK(response);
       };
-      const handleError = (err?: Error | null) => {
-        return WebResponse.respondError(response, err);
-      };
 
       response.statusCode = 404;
-      stream.finished(response, handleError);
+      stream.finished(response, response.onError);
 
-      return fn(ctx).then(handleResponse).catch(handleError);
+      return fn(ctx).then(handleResponse).catch(response.onError);
     };
   }
 

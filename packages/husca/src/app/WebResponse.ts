@@ -1,4 +1,4 @@
-import { ServerResponse } from 'node:http';
+import { IncomingMessage, ServerResponse } from 'node:http';
 import util from 'node:util';
 import { extname } from 'node:path';
 import stream, { Stream } from 'node:stream';
@@ -26,7 +26,12 @@ export class WebResponse extends ServerResponse {
   protected explicitStatus: boolean = false;
   protected explicitNullBody: boolean = false;
 
-  declare req: WebRequest;
+  declare readonly req: WebRequest;
+
+  constructor(req: IncomingMessage) {
+    super(req);
+    this.onError = this.onError.bind(this);
+  }
 
   setHeaders(headers: object): void {
     for (let [key, value] of Object.entries(headers)) {
@@ -110,7 +115,7 @@ export class WebResponse extends ServerResponse {
 
       if (original !== val) {
         this.removeHeader('Content-Length');
-        val.once('error', (err) => WebResponse.respondError(this, err));
+        val.once('error', this.onError);
       }
 
       shouldSetContentType && (this.contentType = 'bin');
@@ -140,17 +145,20 @@ export class WebResponse extends ServerResponse {
     }
   }
 
-  get contentLength(): number {
+  get contentLength(): number | undefined {
     const headerName = 'Content-Length';
-
     return this.hasHeader(headerName)
       ? Number.parseInt(this.getHeader(headerName) as string, 10) || 0
-      : this.getContentLengthByBody() || 0;
+      : this.getContentLengthByBody();
   }
 
-  set contentLength(length: number) {
+  set contentLength(length: number | undefined) {
     if (!this.hasHeader('Transfer-Encoding')) {
-      this.setHeader('Content-Length', length);
+      if (typeof length === 'number') {
+        this.setHeader('Content-Length', length);
+      } else {
+        this.removeHeader('Content-Length');
+      }
     }
   }
 
@@ -256,7 +264,7 @@ export class WebResponse extends ServerResponse {
   protected getContentLengthByBody(): number | undefined {
     const { _body: body } = this;
 
-    if (!body || body instanceof Stream) return;
+    if (body === null || body instanceof Stream) return;
     if (typeof body === 'string') return Buffer.byteLength(body);
     if (Buffer.isBuffer(body)) return body.length;
     return Buffer.byteLength(JSON.stringify(body));
@@ -266,10 +274,7 @@ export class WebResponse extends ServerResponse {
     response.respondBody();
   }
 
-  public static respondError(
-    response: WebResponse,
-    error?: Error | HttpError | null,
-  ) {
+  public onError(error?: Error | HttpError | null) {
     if (error == null) return;
 
     let err: HttpError;
@@ -281,20 +286,17 @@ export class WebResponse extends ServerResponse {
       err = error;
     }
 
-    err.headersSent = response.headersSent;
-    const shouldStop =
-      !response.respond || response.headersSent || !response.writable;
+    err.headersSent = this.headersSent;
+    const shouldStop = !this.respond || this.headersSent || !this.writable;
 
-    response.app.emit('error-log', err, response.ctx);
+    this.app.emit('error-log', err, this.ctx);
 
     if (shouldStop) return;
 
-    response.getHeaderNames().forEach((name) => response.removeHeader(name));
+    this.getHeaderNames().forEach((name) => this.removeHeader(name));
 
     if (err.headers) {
-      Object.entries(err.headers).forEach(([key, value]) => {
-        response.setHeader(key, value);
-      });
+      this.setHeaders(err.headers);
     }
 
     let statusCode = err.status || err.statusCode;
@@ -309,16 +311,16 @@ export class WebResponse extends ServerResponse {
     }
 
     const msg = err.expose ? err.message : statuses.message[statusCode]!;
-    response.statusCode = err.status = statusCode;
-    response.app.emit('error-end', msg, response.ctx);
+    this.statusCode = err.status = statusCode;
+    this.app.emit('error-end', msg, this.ctx);
 
-    if (!response.headersSent && response.writable) {
+    if (!this.headersSent && this.writable) {
       const body = JSON.stringify({
         message: msg,
       });
-      response.contentType = 'json';
-      response.contentLength = Buffer.byteLength(body);
-      response.end(body);
+      this.contentType = 'json';
+      this.contentLength = Buffer.byteLength(body);
+      this.end(body);
     }
   }
 }
