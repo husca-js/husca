@@ -5,12 +5,12 @@ import { Slot, SlotManager } from '../slot';
 import { composeToSlot } from '../utils/compose';
 import { finder } from '../utils/finder';
 
-interface AppOptions {
+interface BaseAppOptions {
   paths: finder.Paths;
   globSlots?: SlotManager;
 }
 
-export abstract class App extends EventEmitter {
+export abstract class BaseApp extends EventEmitter {
   protected _preSlotID: string | false = false;
   protected silent: boolean = false;
   protected readonly topic = new Topic<{
@@ -20,7 +20,7 @@ export abstract class App extends EventEmitter {
   protected readonly middleware: Slot[] = [];
   protected readonly routerSlots: Slot[] = [];
 
-  constructor(options: AppOptions) {
+  constructor(options: BaseAppOptions) {
     super();
     this.buildMiddleware(options.globSlots);
     this.routerParser = this.createRouterParser();
@@ -48,7 +48,7 @@ export abstract class App extends EventEmitter {
     return this.routerParser.parseRouter(routers);
   }
 
-  protected buildMiddleware(globSlots: AppOptions['globSlots']) {
+  protected buildMiddleware(globSlots: BaseAppOptions['globSlots']) {
     const { middleware } = this;
     const slots = globSlots ? SlotManager.flatten(globSlots) : null;
 

@@ -6,7 +6,7 @@ import chalk from 'chalk';
 import qs from 'qs';
 import cookies from 'cookies';
 import { HttpError } from 'http-errors';
-import { App } from './App';
+import { BaseApp } from './BaseApp';
 import { WebContext, WebCtx } from './WebContext';
 import { WebRequest } from './WebRequest';
 import { WebResponse } from './WebResponse';
@@ -24,7 +24,7 @@ export interface WebAppOptions {
   readonly silent?: boolean;
 }
 
-export class WebApp extends App {
+export class WebApp extends BaseApp {
   public readonly proxy: false | string;
   public readonly qsParseOptions?: qs.IParseOptions;
   public readonly cookieOptions?: cookies.Option;

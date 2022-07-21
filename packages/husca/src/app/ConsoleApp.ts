@@ -4,7 +4,7 @@ import chalk from 'chalk';
 import { Commander, CommanderParser, BaseRouterParser } from '../router';
 import { ConsoleSlotManager } from '../slot';
 import { composeToMiddleware } from '../utils/compose';
-import { App } from './App';
+import { BaseApp } from './BaseApp';
 import { ConsoleContext } from './ConsoleContext';
 import { ConsoleRequest } from './ConsoleRequest';
 import { ConsoleResponse } from './ConsoleResponse';
@@ -15,7 +15,7 @@ export interface ConsoleAppOptions {
   readonly globalSlots?: ConsoleSlotManager;
 }
 
-export class ConsoleApp extends App {
+export class ConsoleApp extends BaseApp {
   protected readonly getArgv: () => string[];
 
   constructor(options: ConsoleAppOptions = {}) {
