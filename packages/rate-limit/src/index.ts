@@ -139,31 +139,31 @@ export const rateLimit = (options: RateLimitOptions = {}) => {
       return next();
     }
 
+    const { response } = ctx;
     const state = await getState(driver, id, max, duration);
-    const calls = state.current > 0 ? state.current - 1 : 0;
 
     let headers: HeaderNameOptions = {};
     if (!disableHeader) {
       headers = {
-        [remaining]: calls,
+        [remaining]: state.current > 0 ? state.current - 1 : 0,
         [reset]: state.reset,
         [total]: state.total,
       };
-
-      ctx.response.setHeaders(headers);
+      response.setHeaders(headers);
     }
 
     if (state.current) return next();
 
-    const delta = (state.reset * 1000 - Date.now()) | 0;
-    const after = (state.reset - Date.now() / 1000) | 0;
+    const now = Date.now();
+    const delta = Math.round(state.reset * 1e3 - now);
+    const after = Math.round(state.reset - now / 1e3);
     const status = 429;
     const body =
       options.errorMessage ||
       `Rate limit exceeded, retry in ${ms(delta, { long: true })}.`;
 
-    ctx.response.setHeader('Retry-After', after);
-    ctx.send(status);
+    response.setHeader('Retry-After', after);
+    response.status = status;
 
     if (options.throw) {
       ctx.throw(status, body, { headers });
