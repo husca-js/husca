@@ -84,7 +84,7 @@ export abstract class BaseCache {
     return this.deleteValue(hashKey);
   }
 
-  async deleteAll(): Promise<boolean> {
+  async clear(): Promise<boolean> {
     return this.deleteAllValues();
   }
 

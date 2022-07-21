@@ -7,7 +7,7 @@ describe('common', () => {
   const cache: MemoryCache = new MemoryCache();
 
   afterEach(async () => {
-    await cache.deleteAll();
+    await cache.clear();
   });
 
   test('set and get', async () => {
@@ -101,13 +101,13 @@ describe('common', () => {
   test('delete all', async () => {
     await cache.set('my-key', 'my-value');
     await cache.set('next-key', 'my-value');
-    await cache.deleteAll();
+    await cache.clear();
     await expect(cache.get('my-key')).resolves.toBeNull();
     await expect(cache.get('next-key')).resolves.toBeNull();
   });
 
   test('delete empty keys', async () => {
-    await expect(cache.deleteAll()).resolves.toBeTruthy();
+    await expect(cache.clear()).resolves.toBeTruthy();
   });
 
   test('convert key to md5', async () => {
