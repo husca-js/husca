@@ -17,6 +17,7 @@ export class WebRequest extends IncomingMessage {
   public res!: WebResponse;
 
   declare readonly method: string;
+  declare readonly url: string;
 
   public params: Record<string, unknown> = {};
   protected _accept?: Accepts;
