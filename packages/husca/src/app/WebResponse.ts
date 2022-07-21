@@ -12,7 +12,7 @@ import statuses from 'statuses';
 import contentDisposition from 'content-disposition';
 import { getContentType } from '../utils/getContentType';
 import type { WebApp } from './WebApp';
-import createHttpError, { HttpError } from 'http-errors';
+import createHttpError, { HttpError, isHttpError } from 'http-errors';
 import { WebContext } from './WebContext';
 import { WebRequest } from './WebRequest';
 
@@ -280,7 +280,7 @@ export class WebResponse extends ServerResponse {
     let err: HttpError;
     if (!(error instanceof Error)) {
       err = createHttpError(util.format('non-error thrown: %j', error));
-    } else if (!(error instanceof HttpError)) {
+    } else if (!isHttpError(error)) {
       err = createHttpError(error);
     } else {
       err = error;
