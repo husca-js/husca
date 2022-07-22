@@ -1,6 +1,6 @@
 {
   "name": "@husca/redis-cache",
-  "version": "0.0.21",
+  "version": "0.0.22",
   "description": "redis引擎缓存",
   "keywords": [
     "redis",
@@ -44,7 +44,7 @@
     "redis": "*"
   },
   "devDependencies": {
-    "@husca/husca": "^0.0.21",
+    "@husca/husca": "^0.0.22",
     "@types/node": "^18.0.6",
     "@types/supertest": "^2.0.12",
     "redis": "^4.2.0",

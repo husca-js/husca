@@ -1,6 +1,6 @@
 {
   "name": "@husca/logger",
-  "version": "0.0.21",
+  "version": "0.0.22",
   "description": "日志输出中间件",
   "keywords": [
     "logger"
@@ -47,7 +47,7 @@
     "pretty-time": "^1.1.0"
   },
   "devDependencies": {
-    "@husca/husca": "^0.0.21",
+    "@husca/husca": "^0.0.22",
     "@types/boom": "^7.3.2",
     "@types/node": "^18.0.6",
     "@types/pretty-time": "^1.1.2",
