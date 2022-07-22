@@ -6,7 +6,7 @@ import { createSlot } from '@husca/husca';
 import { EncodingMethods, Encodings } from './encodings';
 
 const NO_TRANSFORM_REGEX = /(?:^|,)\s*?no-transform\s*?(?:,|$)/;
-const emptyBodyStatues = [204, 205, 304];
+const EMPTY_BODY_STATUS = [204, 205, 304];
 
 export interface CompressOptions {
   /**
@@ -78,7 +78,7 @@ export const compress = (options: CompressOptions = {}) => {
       response.headersSent ||
       !response.writable ||
       request.method === 'HEAD' ||
-      emptyBodyStatues.includes(+response.status) ||
+      EMPTY_BODY_STATUS.includes(+response.status) ||
       response.getHeader('Content-Encoding') ||
       // forced compression or implied
       !(ctx.needCompress === true || filter(response.contentType)) ||
