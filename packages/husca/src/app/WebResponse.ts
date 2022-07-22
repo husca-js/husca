@@ -15,6 +15,7 @@ import type { WebApp } from './WebApp';
 import createHttpError, { HttpError, isHttpError } from 'http-errors';
 import { WebContext } from './WebContext';
 import { WebRequest } from './WebRequest';
+import { createReadStream } from 'node:fs';
 
 export type Body = string | object | Stream | Buffer | null;
 
@@ -34,7 +35,7 @@ export class WebResponse extends ServerResponse {
   }
 
   setHeaders(headers: object): void {
-    for (let [key, value] of Object.entries(headers)) {
+    for (const [key, value] of Object.entries(headers)) {
       this.setHeader(key, value);
     }
   }
@@ -162,16 +163,19 @@ export class WebResponse extends ServerResponse {
     }
   }
 
-  public setAttachmentHeaders(
-    filename: string | undefined,
-    options: contentDisposition.Options,
-  ): this {
-    filename && (this.contentType = extname(filename));
-
-    return this.setHeader(
+  public download(
+    fullPath: string,
+    options: {
+      contentDisposition?: contentDisposition.Options;
+      readStream?: Parameters<typeof createReadStream>[1];
+    } = {},
+  ): void {
+    this.contentType = extname(fullPath);
+    this.setHeader(
       'Content-Disposition',
-      contentDisposition(filename, options),
+      contentDisposition(fullPath, options.contentDisposition),
     );
+    this.body = createReadStream(fullPath, options.readStream);
   }
 
   public matchContentType(type: string, ...types: string[]) {
