@@ -86,7 +86,7 @@ export const compress = (options: CompressOptions = {}) => {
       // https://tools.ietf.org/html/rfc7234#section-5.2.1.6
       NO_TRANSFORM_REGEX.test(response.getHeader('Cache-Control') as string) ||
       // don't compress if the current response is below the threshold
-      (threshold && response.contentLength < threshold)
+      (threshold && (response.contentLength ?? 0) < threshold)
     ) {
       return;
     }
