@@ -29,6 +29,12 @@ export class WebResponse extends ServerResponse {
   protected explicitNullBody: boolean = false;
 
   declare readonly req: WebRequest;
+
+  constructor(req: IncomingMessage) {
+    super(req);
+    this.onError = this.onError.bind(this);
+  }
+
   declare readonly setHeader: {
     <T extends WebResponse>(name: StringHeaderKeys, value: number | string): T;
     <T extends WebResponse>(
@@ -41,14 +47,31 @@ export class WebResponse extends ServerResponse {
     ): T;
   };
 
-  constructor(req: IncomingMessage) {
-    super(req);
-    this.onError = this.onError.bind(this);
-  }
+  declare readonly getHeader: {
+    (name: StringHeaderKeys): string | undefined;
+    (name: StringArrayHeaderKeys): string[] | undefined;
+    (name: string): string | string[] | undefined;
+  };
 
-  setHeaders(headers: object): void {
+  declare readonly hasHeader: {
+    (name: StringHeaderKeys | StringArrayHeaderKeys): boolean;
+    (name: string): boolean;
+  };
+
+  declare readonly removeHeader: {
+    (name: StringHeaderKeys | StringArrayHeaderKeys): void;
+    (name: string): void;
+  };
+
+  setHeaders(
+    headers: {
+      [K: string]: string | number | readonly string[];
+    } & { [K in StringHeaderKeys]?: string | number } & {
+      [K in StringArrayHeaderKeys]?: readonly string[];
+    },
+  ): void {
     for (const [key, value] of Object.entries(headers)) {
-      this.setHeader(key, value);
+      value !== undefined && this.setHeader(key, value);
     }
   }
 
@@ -144,7 +167,7 @@ export class WebResponse extends ServerResponse {
   }
 
   get contentType(): string {
-    let type = this.getHeader('Content-Type') as string | undefined;
+    let type = this.getHeader('Content-Type');
     type &&= type.split(';', 1)[0];
     return type || '';
   }
@@ -161,7 +184,7 @@ export class WebResponse extends ServerResponse {
   get contentLength(): number | undefined {
     const headerName = 'Content-Length';
     return this.hasHeader(headerName)
-      ? Number.parseInt(this.getHeader(headerName) as string, 10) || 0
+      ? Number.parseInt(this.getHeader(headerName)!, 10) || 0
       : this.getContentLengthByBody();
   }
 

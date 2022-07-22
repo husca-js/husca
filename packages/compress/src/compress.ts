@@ -84,7 +84,7 @@ export const compress = (options: CompressOptions = {}) => {
       !(ctx.needCompress === true || filter(response.contentType)) ||
       // don't compress for Cache-Control: no-transform
       // https://tools.ietf.org/html/rfc7234#section-5.2.1.6
-      NO_TRANSFORM_REGEX.test(response.getHeader('Cache-Control') as string) ||
+      NO_TRANSFORM_REGEX.test(response.getHeader('Cache-Control') || '') ||
       // don't compress if the current response is below the threshold
       (threshold && (response.contentLength ?? 0) < threshold)
     ) {
