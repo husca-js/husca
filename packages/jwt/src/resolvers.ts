@@ -1,7 +1,7 @@
 import { JWTResolverLoader } from './jwt';
 
 export const resolveAuthorizationHeader: JWTResolverLoader = (ctx) => {
-  const authHeader = ctx.request.headers['authorization'];
+  const authHeader = ctx.request.getHeader('Authorization');
 
   if (!authHeader) return;
 

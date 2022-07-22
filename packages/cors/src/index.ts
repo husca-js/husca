@@ -97,7 +97,7 @@ export const cors = (options: CorsOptions = {}) => {
     const { request, response } = ctx;
     // If the Origin header is not present terminate this set of steps.
     // The request is outside the scope of this specification.
-    const requestOrigin = request.headers['origin'];
+    const requestOrigin = request.getHeader('Origin');
 
     // Always set Vary header
     // https://github.com/rs/cors/issues/10
@@ -172,7 +172,7 @@ export const cors = (options: CorsOptions = {}) => {
       // If there is no Access-Control-Request-Method header or if parsing failed,
       // do not set any additional headers and terminate this set of steps.
       // The request is outside the scope of this specification.
-      if (!request.headers['access-control-request-method']) {
+      if (!request.getHeader('Access-Control-Request-Method')) {
         // this not preflight request, ignore it
         return next();
       }
@@ -189,7 +189,7 @@ export const cors = (options: CorsOptions = {}) => {
 
       if (
         options.privateNetworkAccess &&
-        request.headers['access-control-request-private-network']
+        request.getHeader('Access-Control-Request-Private-Network')
       ) {
         response.setHeader('Access-Control-Allow-Private-Network', 'true');
       }
@@ -208,7 +208,7 @@ export const cors = (options: CorsOptions = {}) => {
 
       const allowHeaders =
         options.allowHeaders ||
-        request.headers['access-control-request-headers'];
+        request.getHeader('Access-Control-Request-Headers');
 
       if (allowHeaders) {
         response.setHeader('Access-Control-Allow-Headers', allowHeaders);

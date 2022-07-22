@@ -136,7 +136,7 @@ describe('id', async () => {
       globalSlots: manageSlots().load(
         rateLimit({
           driver: db,
-          id: (ctx) => ctx.request.headers.foo as string,
+          id: (ctx) => ctx.request.getHeader('foo') as string,
           max: 1,
         }),
       ),
@@ -168,13 +168,13 @@ describe('id', async () => {
         .load(
           rateLimit({
             driver: db,
-            id: (ctx) => ctx.request.headers.foo as string,
+            id: (ctx) => ctx.request.getHeader('foo') as string,
             max: 1,
           }),
         )
         .load(
           createSlot((ctx) => {
-            ctx.send(ctx.request.headers.foo ?? null);
+            ctx.send(ctx.request.getHeader('foo') ?? null);
           }),
         ),
     });
@@ -198,7 +198,7 @@ describe('whitelist', () => {
         .load(
           rateLimit({
             driver: db,
-            allowList: (ctx) => ctx.request.headers.foo === 'whitelistme',
+            allowList: (ctx) => ctx.request.getHeader('foo') === 'whitelistme',
             max: 1,
           }),
         )
@@ -239,7 +239,7 @@ describe('blacklist', () => {
         .load(
           rateLimit({
             driver: db,
-            denyList: (ctx) => ctx.request.headers.foo === 'blacklisted',
+            denyList: (ctx) => ctx.request.getHeader('foo') === 'blacklisted',
             max: 1,
           }),
         )

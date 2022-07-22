@@ -7,10 +7,14 @@ type ExtraStringHeaderKeys =
   | 'X-Forwarded-Proto'
   | 'X-Forwarded-Host'
   | 'X-Real-IP'
+  | 'Access-Control-Request-Private-Network'
+  | 'Access-Control-Allow-Private-Network'
   | 'x-forwarded-for'
   | 'x-forwarded-proto'
   | 'x-forwarded-host'
-  | 'x-real-ip';
+  | 'x-real-ip'
+  | 'access-control-request-private-network'
+  | 'access-control-allow-private-network';
 
 type OfficalStringHeaderKeys =
   | 'accept'

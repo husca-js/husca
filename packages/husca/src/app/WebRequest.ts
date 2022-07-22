@@ -1,4 +1,4 @@
-import { IncomingMessage } from 'node:http';
+import { IncomingHttpHeaders, IncomingMessage } from 'node:http';
 import parseurl from 'parseurl';
 import formidable from 'formidable';
 import coBody from 'co-body';
@@ -19,6 +19,11 @@ export class WebRequest extends IncomingMessage {
 
   declare readonly method: string;
   declare readonly url: string;
+  /**
+   * @deprecated
+   * @see getHeader()
+   */
+  declare readonly headers: IncomingHttpHeaders;
 
   public params: Record<string, unknown> = {};
   protected _accept?: Accepts;

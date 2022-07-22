@@ -94,7 +94,7 @@ export const compress = (options: CompressOptions = {}) => {
     // get the preferred content encoding
     const encodings = new Encodings({ preferredEncodings });
     encodings.parseAcceptEncoding(
-      (request.headers['accept-encoding'] as EncodingMethods | undefined) ||
+      (request.getHeader('accept-encoding') as EncodingMethods | undefined) ||
         defaultEncoding,
     );
     const encoding = encodings.getPreferredContentEncoding();
