@@ -1,6 +1,6 @@
 {
   "name": "@husca/ioredis-cache",
-  "version": "0.0.19",
+  "version": "0.0.20",
   "description": "ioredis引擎缓存",
   "keywords": [
     "redis",
@@ -44,7 +44,7 @@
     "ioredis": "*"
   },
   "devDependencies": {
-    "@husca/husca": "^0.0.19",
+    "@husca/husca": "^0.0.20",
     "@types/node": "^18.0.6",
     "@types/supertest": "^2.0.12",
     "ioredis": "^5.2.1",
