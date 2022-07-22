@@ -16,7 +16,7 @@ const goodBody = 'Num times hit:';
 const db = new MemoryCache();
 
 beforeEach(async () => {
-  await db.deleteAll();
+  await db.clear();
 });
 
 describe('limit', () => {
