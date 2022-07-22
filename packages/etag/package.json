@@ -1,6 +1,6 @@
 {
   "name": "@husca/etag",
-  "version": "0.0.0",
+  "version": "0.0.21",
   "description": "计算etag信息",
   "keywords": [
     "etag"
@@ -42,7 +42,7 @@
     "@husca/husca": "^0.x"
   },
   "devDependencies": {
-    "@husca/husca": "^0.0.20",
+    "@husca/husca": "^0.0.21",
     "@types/etag": "^1.8.1",
     "@types/node": "^18.0.6",
     "@types/supertest": "^2.0.12",
