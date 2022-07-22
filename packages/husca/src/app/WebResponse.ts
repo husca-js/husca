@@ -1,3 +1,4 @@
+import { createReadStream } from 'node:fs';
 import { IncomingMessage, ServerResponse } from 'node:http';
 import util from 'node:util';
 import { extname } from 'node:path';
@@ -10,12 +11,12 @@ import escapeHtml from 'escape-html';
 import destroy from 'destroy';
 import statuses from 'statuses';
 import contentDisposition from 'content-disposition';
+import createHttpError, { type HttpError, isHttpError } from 'http-errors';
 import { getContentType } from '../utils/getContentType';
 import type { WebApp } from './WebApp';
-import createHttpError, { HttpError, isHttpError } from 'http-errors';
-import { WebContext } from './WebContext';
-import { WebRequest } from './WebRequest';
-import { createReadStream } from 'node:fs';
+import type { WebContext } from './WebContext';
+import type { WebRequest } from './WebRequest';
+import type { StringArrayHeaderKeys, StringHeaderKeys } from './headerKeys';
 
 export type Body = string | object | Stream | Buffer | null;
 
@@ -28,6 +29,17 @@ export class WebResponse extends ServerResponse {
   protected explicitNullBody: boolean = false;
 
   declare readonly req: WebRequest;
+  declare readonly setHeader: {
+    <T extends WebResponse>(name: StringHeaderKeys, value: number | string): T;
+    <T extends WebResponse>(
+      name: StringArrayHeaderKeys,
+      value: readonly string[],
+    ): T;
+    <T extends WebResponse>(
+      name: string,
+      value: number | string | readonly string[],
+    ): T;
+  };
 
   constructor(req: IncomingMessage) {
     super(req);

@@ -9,7 +9,8 @@ import fresh from 'fresh';
 import qs from 'qs';
 import type { WebApp } from './WebApp';
 import type { WebResponse } from './WebResponse';
-import { WebContext } from './WebContext';
+import type { WebContext } from './WebContext';
+import type { StringArrayHeaderKeys, StringHeaderKeys } from './headerKeys';
 
 export class WebRequest extends IncomingMessage {
   public app!: WebApp;
@@ -40,11 +41,11 @@ export class WebRequest extends IncomingMessage {
   }
 
   get ips(): string[] {
-    const proxy = this.app.proxy;
+    const { proxyIpHeader } = this.app;
 
-    if (!proxy) return [];
+    if (!proxyIpHeader) return [];
 
-    const val = this.headers[proxy];
+    const val = this.getHeader(proxyIpHeader);
     let ips = val ? val.toString().split(/\s*,\s*/) : [];
     if (this.app.maxIpsCount > 0) {
       ips = ips.slice(-this.app.maxIpsCount);
@@ -87,7 +88,7 @@ export class WebRequest extends IncomingMessage {
   }
 
   get host(): string {
-    let host = this.app.proxy && this.headers[this.app.proxy];
+    let host = this.app.proxyIpHeader && this.getHeader(this.app.proxyIpHeader);
 
     if (!host) {
       if (this.httpVersionMajor >= 2) {
@@ -121,9 +122,9 @@ export class WebRequest extends IncomingMessage {
   get protocol(): string {
     // @ts-expect-error
     if (this.socket.encrypted) return 'https';
-    if (!this.app.proxy) return 'http';
+    if (!this.app.proxyIpHeader) return 'http';
 
-    let proto = this.headers['X-Forwarded-Proto'] as string | undefined;
+    let proto = this.getHeader('X-Forwarded-Proto');
     proto &&= proto.split(/\s*,\s*/, 1)[0];
     return proto || 'http';
   }
@@ -151,5 +152,12 @@ export class WebRequest extends IncomingMessage {
 
   public matchContentType(type: string, ...types: string[]) {
     return typeIs(this, type, ...types);
+  }
+
+  public getHeader(key: StringHeaderKeys): string | undefined;
+  public getHeader(key: StringArrayHeaderKeys): string[] | undefined;
+  public getHeader(key: string): string | string[] | undefined;
+  public getHeader(key: string): string | string[] | undefined {
+    return this.headers[key.toLowerCase()];
   }
 }

@@ -16,7 +16,7 @@ import { composeToMiddleware } from '../utils/compose';
 
 export interface WebAppOptions {
   readonly routers?: string[];
-  readonly proxy?: boolean | string;
+  readonly proxyIpHeader?: boolean | string;
   readonly maxIpsCount?: number;
   readonly globalSlots?: WebSlotManager;
   readonly querystring?: qs.IParseOptions;
@@ -25,7 +25,7 @@ export interface WebAppOptions {
 }
 
 export class WebApp extends BaseApp {
-  public readonly proxy: false | string;
+  public readonly proxyIpHeader: false | string;
   public readonly qsParseOptions?: qs.IParseOptions;
   public readonly cookieOptions?: cookies.Option;
   public readonly maxIpsCount: number;
@@ -41,16 +41,16 @@ export class WebApp extends BaseApp {
     this.cookieOptions = options.cookies;
     this.maxIpsCount = options.maxIpsCount || 0;
 
-    switch (options.proxy) {
+    switch (options.proxyIpHeader) {
       case true:
-        this.proxy = 'X-Forwarded-For';
+        this.proxyIpHeader = 'X-Forwarded-For';
         break;
       case false:
       case void 0:
-        this.proxy = false;
+        this.proxyIpHeader = false;
         break;
       default:
-        this.proxy = options.proxy;
+        this.proxyIpHeader = options.proxyIpHeader;
     }
   }
 
