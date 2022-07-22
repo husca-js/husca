@@ -1,3 +1,4 @@
+import { pathToFileURL } from 'node:url';
 import { Slot } from '../slot';
 import { finder } from '../utils/finder';
 import { toArray } from '../utils/toArray';
@@ -33,7 +34,9 @@ export abstract class BaseRouterParser {
   protected parseRouterFromFile(files: string[]): Promise<void[]> {
     return Promise.all(
       files.map(async (file) => {
-        const modules: Record<string, BaseRouter> = await import(file);
+        const modules: Record<string, BaseRouter> = await import(
+          pathToFileURL(file).toString()
+        );
         this.parseRouter(Object.values(modules));
       }),
     );

@@ -34,15 +34,18 @@ export const finder = (paths: finder.Paths): Promise<string[]> => {
 
   return Promise.all(
     opts.map((opt) => {
-      const options: glob.IOptions = opt;
-      const ignore = opt.ignore ? opt.ignore.slice() : [];
+      const { dot, pattern: patterns } = opt;
+      const options: glob.IOptions = {
+        nodir: true,
+        dot,
+      };
 
+      const ignore = opt.ignore ? opt.ignore.slice() : [];
       ignore.push('**/*.d.{ts,mts,cts}');
       options.ignore = ignore;
-      options.nodir = true;
 
       return Promise.all(
-        opt.pattern.map(
+        patterns.map(
           (pattern) =>
             new Promise<string[]>((resolve, reject) => {
               pattern = path.resolve(pattern);
@@ -57,13 +60,17 @@ export const finder = (paths: finder.Paths): Promise<string[]> => {
                 }
               }
 
-              glob(pattern, options, (err, matches) => {
-                if (err === null) {
-                  resolve(matches);
-                } else {
-                  reject(err);
-                }
-              });
+              glob(
+                pattern.split(path.sep).join('/'),
+                options,
+                (err, matches) => {
+                  if (err === null) {
+                    resolve(matches);
+                  } else {
+                    reject(err);
+                  }
+                },
+              );
             }),
         ),
       ).then(flat);
