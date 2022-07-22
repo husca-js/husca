@@ -2,23 +2,6 @@ import { BaseCache, createSlot, MemoryCache, WebCtx } from '@husca/husca';
 import microtime from 'microtime';
 import ms from 'ms';
 
-interface HeaderNameOptions {
-  /**
-   * The amount of requests remaining in the current limiting period.
-   */
-  remaining?: string;
-
-  /**
-   * The time, expressed as a UNIX epoch timestamp, at which your rate-limit expires.
-   */
-  reset?: string;
-
-  /**
-   * The total amount of requests a client may make during a limiting period.
-   */
-  total?: string;
-}
-
 export interface RateLimitOptions {
   /**
    * The database powering the backing rate-limiter package.
@@ -64,7 +47,22 @@ export interface RateLimitOptions {
   /**
    * A relation of header to the header's display name.
    */
-  headers?: HeaderNameOptions;
+  headers?: {
+    /**
+     * The amount of requests remaining in the current limiting period.
+     */
+    remaining?: string;
+
+    /**
+     * The time, expressed as a UNIX epoch timestamp, at which your rate-limit expires.
+     */
+    reset?: string;
+
+    /**
+     * The total amount of requests a client may make during a limiting period.
+     */
+    total?: string;
+  };
 
   /**
    * If function returns true, middleware exits before limiting
@@ -142,7 +140,7 @@ export const rateLimit = (options: RateLimitOptions = {}) => {
     const { response } = ctx;
     const state = await getState(driver, id, max, duration);
 
-    let headers: HeaderNameOptions = {};
+    let headers: Record<string, number> = {};
     if (!disableHeader) {
       headers = {
         [remaining]: state.current > 0 ? state.current - 1 : 0,
