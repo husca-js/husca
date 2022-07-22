@@ -5,9 +5,11 @@ export type StringHeaderKeys = ExtraStringHeaderKeys | OfficalStringHeaderKeys;
 type ExtraStringHeaderKeys =
   | 'X-Forwarded-For'
   | 'X-Forwarded-Proto'
+  | 'X-Forwarded-Host'
   | 'X-Real-IP'
   | 'x-forwarded-for'
   | 'x-forwarded-proto'
+  | 'x-forwarded-host'
   | 'x-real-ip';
 
 type OfficalStringHeaderKeys =
@@ -100,7 +102,7 @@ type OfficalStringHeaderKeys =
   | 'Content-Type'
   | 'Cookie'
   | 'Date'
-  | 'Etag'
+  | 'ETag'
   | 'Expect'
   | 'Expires'
   | 'Forwarded'
@@ -134,4 +136,4 @@ type OfficalStringHeaderKeys =
   | 'Vary'
   | 'Via'
   | 'Warning'
-  | 'Www-Authenticate';
+  | 'WWW-Authenticate';
